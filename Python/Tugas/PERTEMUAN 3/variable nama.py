@@ -1,0 +1,2 @@
+nama = "Budi"
+print(nama)
