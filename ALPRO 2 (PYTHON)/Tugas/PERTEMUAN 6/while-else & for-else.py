@@ -20,6 +20,6 @@ else:
     print(f"Jumlah Akun yang terdaftar : {jumlahAkun}")
 
 for i in range(jumlahAkun):
-    print(f"Akun ke-{i+1} : {akun[i]}")
+    print(f"Akun ke-{i+1} : {akun[i]}") 
 else:
     print("Semua akun sudah ditampilkan.")

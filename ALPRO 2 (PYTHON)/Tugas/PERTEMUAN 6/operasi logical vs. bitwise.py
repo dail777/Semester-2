@@ -10,5 +10,5 @@ print(f"bit : {bit:b}")
 logneg = not i
 bitneg = ~i
 
-print(f"logneg : {logneg}")
+print(f"logneg : {logneg:b }")
 print(f"bitneg : {bitneg:b}")

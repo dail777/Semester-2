@@ -12,5 +12,3 @@ hasil2 = nama + " bekerja sebagai " + pekerjaan
 
 print(hasil1)
 print(hasil2)
-
-

@@ -36,3 +36,4 @@ print(setF)
 #selisih simetris
 setG = setA ^ setB #atau setG = setA.symmetric_difference(setB)
 print(setG)
+

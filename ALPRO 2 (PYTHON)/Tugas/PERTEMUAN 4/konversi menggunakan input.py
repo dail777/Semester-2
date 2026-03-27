@@ -15,7 +15,3 @@ print("Konversi Angka1 ke Tipe FLoat :", angkaFloat)
 print("Konversi Angka2 ke Tipe Float :", angkaFloat2)
 
 print("Hasil Pembagian Angka Float 1 dan Angka Float 2 :", operasiPembagian)
-
-
-
-
