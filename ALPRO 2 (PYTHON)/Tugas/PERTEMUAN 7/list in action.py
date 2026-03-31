@@ -9,3 +9,8 @@ for i in range(len(my_list) // 2):
     my_list[i], my_list[len(my_list) - 1 - i] = my_list[len(my_list) - 1 - i], my_list[i]
 
 print("for looping :", my_list)
+
+for i in range(100 // 2):
+    my_list[i], my_list[len(my_list) - 1 - i] = my_list[len(my_list) - 1 - i], my_list[i]
+
+print("for looping 2 :", my_list)
