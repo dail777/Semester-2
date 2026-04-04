@@ -4,7 +4,7 @@
 #wawan maulana
 uang = 0
 member = False
-nyoba = true
+
 def top_up(saldo_saat_ini):
     jumlah = int(input("Masukkan jumlah top up: "))
     return saldo_saat_ini + jumlah
@@ -28,7 +28,6 @@ member()
 
 
 #rute - kalo member = diskon
-<<<<<<< HEAD
 rute = ["jakarta", "bandung", "surabaya", "yogyakarta"]
 print("Rute yang tersedia:")
 for i, r in enumerate(rute):
@@ -38,7 +37,3 @@ if 1 <= pilihan <= len(rute):
     print(f"Anda memilih rute: {rute[pilihan - 1]}")
 else:    
     print("Pilihan tidak valid.")
-=======
-#dail
-
->>>>>>> 7bb32dd6a3fd60fc01304dc7293625a75c27ceec
