@@ -1,7 +1,5 @@
 #login / register
 #topup - membeli member 
-#rute - kalo member = diskon
-
 uang = 0
 member = False
 
@@ -21,7 +19,11 @@ def member():
     else :
         print("error")
 
-# Update nilai uang dengan hasil dari fungsi
 #uang = top_up(uang)
 #print(f"Saldo sekarang: {uang}")
 member()
+
+
+
+#rute - kalo member = diskon
+
