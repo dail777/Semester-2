@@ -1,62 +1,66 @@
 #login / register
 #lasiah
-# Database sederhana (menyimpan user)
+# database sederhana
 users = {}
 
-# Fungsi register
+# REGISTER
 def register():
-    print("\n=== REGISTER COMMUTER LINE ===")
-    username = input("Masukkan username: ")
+    print("\n=== REGISTER ===")
+    username = input("Username: ")
     
     if username in users:
-        print("Username sudah terdaftar!")
+        print("Username sudah ada!")
         return
     
-    password = input("Masukkan password: ")
+    password = input("Password: ")
     users[username] = password
-    print("Registrasi berhasil!")
+    print("Register berhasil!")
 
-# Fungsi login
+# LOGIN
 def login():
-    print("\n=== LOGIN COMMUTER LINE ===")
-    username = input("Masukkan username: ")
-    password = input("Masukkan password: ")
+    print("\n=== LOGIN ===")
+    username = input("Username: ")
+    password = input("Password: ")
     
     if username in users and users[username] == password:
-        print("Login berhasil! Selamat datang di Commuter Line 🚆")
-        menu_commuter()
+        print("Login berhasil!")
+        menu(username)
     else:
-        print("Username atau password salah!")
+        print("Login gagal!")
 
-# Menu setelah login
-def menu_commuter():
+def menu(username):
     while True:
-        print("\n=== MENU COMMUTER LINE ===")
+        print(f"\n=== MENU UTAMA ({username}) ===")
         print("1. Lihat Rute")
         print("2. Pesan Tiket")
-        print("3. Logout")
+        print("3. Top Up")
+        print("4. Pembayaran")
+        print("5. Logout")
         
         pilihan = input("Pilih menu: ")
         
         if pilihan == "1":
-            print("Rute tersedia: Jakarta - Bogor, Jakarta - Bekasi, Jakarta - Cikarang")
+            lihat_rute()      # fungsi teman
         elif pilihan == "2":
-            tujuan = input("Masukkan tujuan: ")
-            print(f"Tiket ke {tujuan} berhasil dipesan!")
+            pesan_tiket()     # fungsi teman
         elif pilihan == "3":
-            print("Logout berhasil!")
+            top_up()          # fungsi teman
+        elif pilihan == "4":
+            pembayaran()      # fungsi teman
+        elif pilihan == "5":
+            print("Logout...")
             break
         else:
             print("Pilihan tidak valid!")
 
-# Program utama
+# PROGRAM UTAMA
 while True:
-    print("\n=== SISTEM COMMUTER LINE ===")
+    print("\n=== COMMUTER LINE ===")
     print("1. Register")
     print("2. Login")
     print("3. Keluar")
     
-    pilih = input("Pilih menu: ")
+    pilih = input("Pilih: ")
     
     if pilih == "1":
         register()
