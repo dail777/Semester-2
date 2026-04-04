@@ -6,6 +6,7 @@ def garis20():
 
 #login / register
 #lasiah
+
 # Database sederhana (menyimpan user)
 users = {}
 
@@ -38,17 +39,16 @@ def login():
 def menu_commuter():
     while True:
         print("\n=== MENU COMMUTER LINE ===")
-        print("1. Lihat Rute")
-        print("2. Pesan Tiket")
+        print("1. Daftar Stasiun")
+        print("2. Pilih Rute")
         print("3. Logout")
         
         pilihan = input("Pilih menu: ")
         
         if pilihan == "1":
-            print("Rute tersedia: Jakarta - Bogor, Jakarta - Bekasi, Jakarta - Cikarang")
+            tampilStasiun()
         elif pilihan == "2":
-            tujuan = input("Masukkan tujuan: ")
-            print(f"Tiket ke {tujuan} berhasil dipesan!")
+            pilihRute()
         elif pilihan == "3":
             print("Logout berhasil!")
             break
