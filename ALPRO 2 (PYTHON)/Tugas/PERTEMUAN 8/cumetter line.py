@@ -1,5 +1,7 @@
 #login / register
+#lasiah
 #topup - membeli member 
+#wawan maulana
 uang = 0
 member = False
 
@@ -26,4 +28,5 @@ member()
 
 
 #rute - kalo member = diskon
+#dail
 
