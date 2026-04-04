@@ -4,7 +4,7 @@
 #wawan maulana
 uang = 0
 member = False
-
+nyoba = true
 def top_up(saldo_saat_ini):
     jumlah = int(input("Masukkan jumlah top up: "))
     return saldo_saat_ini + jumlah
