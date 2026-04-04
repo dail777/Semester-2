@@ -26,4 +26,12 @@ member()
 
 
 #rute - kalo member = diskon
-
+rute = ["jakarta", "bandung", "surabaya", "yogyakarta"]
+print("Rute yang tersedia:")
+for i, r in enumerate(rute):
+    print(f"{i + 1}. {r}")
+pilihan = int(input("Pilih rute (1-4): "))
+if 1 <= pilihan <= len(rute):
+    print(f"Anda memilih rute: {rute[pilihan - 1]}")
+else:    
+    print("Pilihan tidak valid.")
