@@ -12,6 +12,10 @@ alert = None
 uang = 0
 member = False
 
+users = {}
+user_data = {}
+current_user = None
+
 # alert system
 def set_alert(pesan):
     global alert
@@ -26,13 +30,22 @@ def show_alert():
         alert = None
 
 
+def sync_data():
+    global current_user, uang, member
+    if current_user:
+        user_data[current_user]["uang"] = uang
+        user_data[current_user]["member"] = member
+
+
 #sistem top up dan member
 #wawan
 def top_up(saldo_saat_ini):
     try:
         jumlah = int(input("Masukkan jumlah top up: "))
         set_alert(f"✅ Top up berhasil! Saldo {jumlah} telah ditambahkan.")
-        return saldo_saat_ini + jumlah
+        hasil = saldo_saat_ini + jumlah
+        sync_data()
+        return hasil
     except:
         set_alert("⚠️ Input top up tidak valid!")
         return saldo_saat_ini
@@ -59,6 +72,7 @@ def pilih_member():
         uang -= harga_member
         member = True
         set_alert(f"✅ Berhasil join member! Sisa saldo: {uang}")
+        sync_data()
     else:
         set_alert(f"⚠️ Saldo tidak cukup. Harga: {harga_member}, Saldo: {uang}")
 
@@ -83,6 +97,7 @@ def menu_top_up():
 
         if pilih == "1":
             uang = top_up(uang)
+            sync_data()
         elif pilih == "2":
             pilih_member()
         elif pilih == "3":
@@ -170,6 +185,7 @@ def pilihRute(): #memilih rute dan menghitung harga berdasarkan jarak stasiun
         if uang >= harga:
             uang -= harga
             set_alert(f"✅ Rute berhasil dipilih! Sisa saldo: {uang}")
+            sync_data()
         else:
             set_alert("⚠️ Saldo tidak cukup!")
     elif confirm == "BATAL":
@@ -180,8 +196,6 @@ def pilihRute(): #memilih rute dan menghitung harga berdasarkan jarak stasiun
 
 #menu utama
 #lasiah
-users = {}
-
 
 def register():
     clear()
@@ -198,6 +212,7 @@ def register():
 
     password = input("Masukkan password: ")
     users[username] = password
+    user_data[username] = {"uang": 0, "member": False}
     set_alert("✅ Registrasi berhasil!")
 
 
@@ -212,6 +227,10 @@ def login():
     password = input("Masukkan password: ")
 
     if username in users and users[username] == password:
+        global current_user, uang, member
+        current_user = username
+        uang = user_data[username]["uang"]
+        member = user_data[username]["member"]
         set_alert("✅ Login berhasil!")
         menu_commuter()
     else:
