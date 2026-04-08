@@ -54,4 +54,3 @@ def menu_top_up():
         print("Menu tidak valid.")
 
 # Jalankan program
-menu_top_up()
