@@ -55,7 +55,7 @@ def hitung_rute(stasiunAwal, stasiunTujuan):
     jarak = abs(indexTujuan - indexAwal)
     hargaPerStasiun = 5000
     if member:
-        hargaPerStasiun *= 30 / 100
+        hargaPerStasiun *= 0.7
     harga = int(jarak * hargaPerStasiun)
     return {"dari": stasiun[indexAwal], "ke": stasiun[indexTujuan],
             "jarak": jarak, "harga": harga, "diskon": member}
