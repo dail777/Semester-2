@@ -1,4 +1,5 @@
 import os
+#pppp
 #dail
 #garis sepanjang 60 karakter sebagai pembatas
 def garis20():
