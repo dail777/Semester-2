@@ -1,8 +1,5 @@
 import os
-#pppp
-#jsdbfanfafmdwdwihdoipeweuoisdwmdwoweyyii
 #dail
-#jshfhueyrqwyrieqyrieyreyreiuqi
 #garis sepanjang 60 karakter sebagai pembatas
 def garis20():
     print("=" * 60)
@@ -43,63 +40,70 @@ def sync_data():
 #sistem top up dan member
 #wawan
 def top_up(saldo_saat_ini):
-    jumlah = int(input("Masukkan jumlah top up: "))
-    print(f" Top-up berhasil {jumlah} masuk.")
-    return saldo_saat_ini + jumlah
+    try:
+        jumlah = int(input("Masukkan jumlah top up: "))
+        set_alert(f"✅ Top up berhasil! Saldo {jumlah} telah ditambahkan.")
+        hasil = saldo_saat_ini + jumlah
+        sync_data()
+        return hasil
+    except:
+        set_alert("⚠️ Input top up tidak valid!")
+        return saldo_saat_ini
 
 
 def pilih_member():
     global uang, member
-    
+    clear()
+
     harga_member = 20000
-    print(f"\nBeli member (Harga: {harga_member})")
+    garis20()
+    print("Beli member")
     print("1. Ya")
     print("2. Tidak")
-    
+    garis20()
+
     opsi = input("Pilih (1-2): ")
-    
-    if opsi == "1":
-        member = True
-    else :
-        print("⚠️ Dibatalkan")
+
+    if opsi != "1":
+        set_alert("⚠️ Pembelian dibatalkan.")
         return
 
     if uang >= harga_member:
         uang -= harga_member
-        is_member = True
-        print(f"✅ Berhasil join! Sisa saldo: {uang}")
+        member = True
+        set_alert(f"✅ Berhasil join member! Sisa saldo: {uang}")
+        sync_data()
     else:
-        print(f"⚠️ Saldo tidak cukup. Harga member: {harga_member}, Saldo kamu: {uang}")
+        set_alert(f"⚠️ Saldo tidak cukup. Harga: {harga_member}, Saldo: {uang}")
+
 
 def menu_top_up():
     global uang
-    
-    print(f"""
-    ===================
-    Saldo : {uang}
-    Member  : {"aktif" if member else "tidak aktif"}
-    ===================
-    1. Top-up Saldo
-    2. Beli Member
-    3. Keluar
-    """)
 
-    pilih = input("Pilih menu: ")
+    while True:
+        clear()
+        garis20()
+        print("MENU SALDO")
+        garis20()
+        print(f"SALDO  : {uang}")
+        print(f"MEMBER : {'Aktif' if member else 'Tidak Aktif'}")
+        print("1. Isi Saldo")
+        print("2. Join Member")
+        print("3. Kembali")
+        garis20()
+        show_alert()
 
-    if pilih == "1":
-        uang = top_up(uang)
-        menu_top_up()
-    elif pilih == "2":
-        if member:
-            print("ℹ️ Kamu sudah membeli member!")
-        else:
+        pilih = input("Pilih menu: ")
+
+        if pilih == "1":
+            uang = top_up(uang)
+            sync_data()
+        elif pilih == "2":
             pilih_member()
-        menu_top_up()
-    elif pilih == "3":
-        print("Selamat tinggal!")
-    else:
-        print("⚠️ pilihan tidak valid.")
-        menu_top_up()
+        elif pilih == "3":
+            return
+        else:
+            set_alert("⚠️ Menu tidak valid!")
 
 
 #penampilan stasiun dan pemilihan rute
@@ -160,7 +164,7 @@ def pilihRute(): #memilih rute dan menghitung harga berdasarkan jarak stasiun
     hargaPerStasiun = 5000
 
     if member:
-        hargaPerStasiun *= 30/100 #diskon 30% untuk member
+        hargaPerStasiun *= 0.7 #diskon 30% untuk member
 
     harga = int(jarak * hargaPerStasiun)
 
