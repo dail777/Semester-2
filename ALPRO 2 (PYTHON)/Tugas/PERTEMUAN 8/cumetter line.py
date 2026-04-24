@@ -1,4 +1,6 @@
 import os
+#pppp
+#jsdbfanfafmdwdwihdoipeweuoisdwmdwoweyyii
 #dail
 #garis sepanjang 60 karakter sebagai pembatas
 def garis20():
