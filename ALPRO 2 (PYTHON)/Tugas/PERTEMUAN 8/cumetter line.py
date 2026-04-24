@@ -3,6 +3,7 @@ import os
 #jsdbfanfafmdwdwihdoipeweuoisdwmdwoweyyii
 #dail
 #uweqwueiowueiwqueiqwueiqwueeuwye
+#udhuhfjahdajd
 #jshfhueyrqwyrieqyrieyreyreiuqi
 #garis sepanjang 60 karakter sebagai pembatas
 def garis20():
