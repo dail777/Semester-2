@@ -1,6 +1,4 @@
 import os
-#pppp
-#jsdbfanfafmdwdwihdoipeweuoisdwmdwoweyyii
 #dail
 #jshfhueyrqwyrieqyrieyreyreiuqi
 #garis sepanjang 60 karakter sebagai pembatas
