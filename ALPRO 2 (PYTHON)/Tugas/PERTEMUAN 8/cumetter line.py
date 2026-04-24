@@ -1,6 +1,4 @@
 import os
-#pppp
-#jsdbfanfafmdwdwihdoipeweuoisdwmdwoweyyii
 #dail
 #uweqwueiowueiwqueiqwueiqwueeuwye
 #udhuhfjahdajd
