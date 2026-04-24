@@ -54,5 +54,3 @@ mystack.display()
 mystack.peek() #30
 mystack.pop() #30
 print(mystack.is_empty())
-
-
