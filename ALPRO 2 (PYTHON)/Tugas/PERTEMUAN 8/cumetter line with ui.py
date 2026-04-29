@@ -1,22 +1,13 @@
 import customtkinter as ctk
-import tkinter as tk
 from tkinter import messagebox
-import os
 
-# ─── BACKEND (unchanged) ────────────────────────────────────────────────────
-
-def garis20():
-    pass  # tidak diperlukan di GUI
-
-def clear():
-    pass  # tidak diperlukan di GUI
+# ─────────────────────────────────────────────
+#  BACKEND (tidak diubah sama sekali)
+# ─────────────────────────────────────────────
 
 alert = None
 uang = 0
 member = False
-users = {}
-user_data = {}
-current_user = None
 
 def set_alert(pesan):
     global alert
@@ -30,41 +21,27 @@ def show_alert():
         return msg
     return None
 
-def sync_data():
-    global current_user, uang, member
-    if current_user:
-        user_data[current_user]["uang"] = uang
-        user_data[current_user]["member"] = member
-
 def top_up(saldo_saat_ini, jumlah_str):
     try:
         jumlah = int(jumlah_str)
-        if jumlah <= 0:
-            set_alert("⚠️ Jumlah top up harus lebih dari 0!")
-            return saldo_saat_ini
-        set_alert(f"✅ Top up berhasil! Saldo Rp {jumlah:,} telah ditambahkan.")
-        hasil = saldo_saat_ini + jumlah
-        sync_data()
-        return hasil
+        set_alert(f"✅ Top up berhasil! Saldo {jumlah} telah ditambahkan.")
+        return saldo_saat_ini + jumlah
     except:
         set_alert("⚠️ Input top up tidak valid!")
         return saldo_saat_ini
 
-def pilih_member():
+def pilih_member_logic():
     global uang, member
     harga_member = 20000
     if uang >= harga_member:
         uang -= harga_member
         member = True
-        set_alert(f"✅ Berhasil join member! Sisa saldo: Rp {uang:,}")
-        sync_data()
-        return True
+        set_alert(f"✅ Berhasil join member! Sisa saldo: {uang}")
     else:
-        set_alert(f"⚠️ Saldo tidak cukup. Harga: Rp {harga_member:,}, Saldo: Rp {uang:,}")
-        return False
+        set_alert(f"⚠️ Saldo tidak cukup. Harga: {harga_member}, Saldo: {uang}")
 
 stasiun = [
-    "Jakarta Kota", "Tangerang", "Bogor", "Bekasi", "Duri",
+    "Jakarta Kota", "Tanggerang", "Bogor", "Bekasi", "Duri",
     "Rangkasbitung", "Cikarang", "Depok", "Serpong", "Cilebut"
 ]
 
@@ -73,604 +50,607 @@ def hitung_rute(stasiunAwal, stasiunTujuan):
     if stasiunAwal.lower() not in stasiun_lower or stasiunTujuan.lower() not in stasiun_lower:
         set_alert("⚠️ Stasiun tidak valid!")
         return None
-    indexAwal = stasiun_lower.index(stasiunAwal.lower())
+    indexAwal   = stasiun_lower.index(stasiunAwal.lower())
     indexTujuan = stasiun_lower.index(stasiunTujuan.lower())
     jarak = abs(indexTujuan - indexAwal)
     hargaPerStasiun = 5000
     if member:
-        hargaPerStasiun *= 0.70
+        hargaPerStasiun *= 0.7
     harga = int(jarak * hargaPerStasiun)
-    return {
-        "awal": stasiun[indexAwal],
-        "tujuan": stasiun[indexTujuan],
-        "jarak": jarak,
-        "harga": harga,
-        "diskon": member
-    }
+    return {"dari": stasiun[indexAwal], "ke": stasiun[indexTujuan],
+            "jarak": jarak, "harga": harga, "diskon": member}
 
-def konfirmasi_rute(rute_info):
+def bayar_rute(harga):
     global uang
-    harga = rute_info["harga"]
     if uang >= harga:
         uang -= harga
-        set_alert(f"✅ Tiket berhasil dibeli! Sisa saldo: Rp {uang:,}")
-        sync_data()
+        set_alert(f"✅ Rute berhasil dipilih! Sisa saldo: {uang}")
         return True
     else:
         set_alert("⚠️ Saldo tidak cukup!")
         return False
 
-def do_register(username, password):
-    if not username or not password:
-        set_alert("⚠️ Username dan password tidak boleh kosong!")
-        return False
+users = {}
+
+def register_logic(username, password):
     if username in users:
         set_alert("⚠️ Username sudah terdaftar!")
         return False
     users[username] = password
-    user_data[username] = {"uang": 0, "member": False}
     set_alert("✅ Registrasi berhasil!")
     return True
 
-def do_login(username, password):
-    global current_user, uang, member
+def login_logic(username, password):
     if username in users and users[username] == password:
-        current_user = username
-        uang = user_data[username]["uang"]
-        member = user_data[username]["member"]
         set_alert("✅ Login berhasil!")
         return True
-    else:
-        set_alert("⚠️ Username atau password salah!")
-        return False
+    set_alert("⚠️ Username atau password salah!")
+    return False
 
-def do_logout():
-    global current_user, uang, member
-    sync_data()
-    current_user = None
-    uang = 0
-    member = False
-    set_alert("✅ Logout berhasil!")
-
-# ─── GUI ─────────────────────────────────────────────────────────────────────
+# ─────────────────────────────────────────────
+#  TAMPILAN / UI
+# ─────────────────────────────────────────────
 
 ctk.set_appearance_mode("dark")
 ctk.set_default_color_theme("blue")
 
-# Warna tema
-BG_DARK    = "#0A0F1E"
-BG_CARD    = "#111827"
-BG_FIELD   = "#1C2333"
-ACCENT     = "#3B82F6"
-ACCENT2    = "#6366F1"
-SUCCESS    = "#10B981"
-WARNING    = "#F59E0B"
-TEXT_PRI   = "#F1F5F9"
-TEXT_SEC   = "#94A3B8"
-BORDER     = "#1E293B"
+FONT_TITLE  = ("Segoe UI", 22, "bold")
+FONT_SUB    = ("Segoe UI", 13)
+FONT_BODY   = ("Segoe UI", 14)
+FONT_SMALL  = ("Segoe UI", 12)
+FONT_MONO   = ("Consolas",  13)
+
+CLR_BG      = "#1a1a2e"
+CLR_CARD    = "#16213e"
+CLR_ACCENT  = "#0f3460"
+CLR_BLUE    = "#4a9eff"
+CLR_GREEN   = "#4caf7d"
+CLR_AMBER   = "#ffb347"
+CLR_RED     = "#ff6b6b"
+CLR_TEXT    = "#e0e0e0"
+CLR_MUTED   = "#8a8a9a"
+CLR_BORDER  = "#2a2a4e"
 
 
 class CommuterApp(ctk.CTk):
     def __init__(self):
         super().__init__()
-        self.title("KRL Commuter Line")
-        self.geometry("420x680")
-        self.minsize(420, 680)
-        self.configure(fg_color=BG_DARK)
-        self.resizable(True, True)
+        self.title("Commuter Line — Sistem Tiket Digital")
+        self.geometry("460x640")
+        self.resizable(False, False)
+        self.configure(fg_color=CLR_BG)
 
-        self._pending_rute = None
-        self._show_landing()
+        self.current_user = None
+        self._frames = {}
+        self._route_data = None
 
-    # ─── Helpers ─────────────────────────────────────────────────────────
+        container = ctk.CTkFrame(self, fg_color=CLR_BG)
+        container.pack(fill="both", expand=True, padx=20, pady=20)
+        container.grid_rowconfigure(0, weight=1)
+        container.grid_columnconfigure(0, weight=1)
 
-    def _clear_frame(self):
-        for w in self.winfo_children():
-            w.destroy()
+        for F in (MainScreen, RegisterScreen, LoginScreen, MenuScreen,
+                  StationsScreen, RouteScreen, RouteConfirmScreen,
+                  SaldoScreen, TopupScreen, MemberScreen):
+            frame = F(container, self)
+            self._frames[F] = frame
+            frame.grid(row=0, column=0, sticky="nsew")
 
-    def _toast(self, msg, color=SUCCESS):
-        """Floating toast notification."""
-        toast = ctk.CTkFrame(self, fg_color=color, corner_radius=10)
-        toast.place(relx=0.5, rely=0.97, anchor="s", relwidth=0.88)
-        ctk.CTkLabel(toast, text=msg, text_color="#FFFFFF",
-                     font=("Helvetica", 12), wraplength=330).pack(pady=8, padx=10)
-        self.after(2500, toast.destroy)
+        self.show(MainScreen)
 
-    def _check_alert(self):
+    def show(self, screen_class):
+        frame = self._frames[screen_class]
+        frame.on_show()
+        frame.tkraise()
+
+    def popup(self, msg, kind="info"):
+        color = CLR_GREEN if "✅" in msg else CLR_AMBER if "⚠️" in msg else CLR_BLUE
+        win = ctk.CTkToplevel(self)
+        win.title("")
+        win.geometry("340x140")
+        win.resizable(False, False)
+        win.configure(fg_color=CLR_CARD)
+        win.grab_set()
+        ctk.CTkLabel(win, text=msg, font=FONT_SMALL, text_color=color,
+                     wraplength=300).pack(expand=True, pady=20, padx=20)
+        ctk.CTkButton(win, text="OK", width=100, fg_color=CLR_ACCENT,
+                      hover_color=CLR_BLUE, command=win.destroy).pack(pady=(0, 16))
+
+    def flush_alert(self):
         msg = show_alert()
         if msg:
-            color = SUCCESS if "✅" in msg else WARNING
-            self._toast(msg, color)
+            self.popup(msg)
 
-    def _header(self, parent, title, subtitle=None):
-        ctk.CTkLabel(parent, text=title,
-                     font=("Helvetica", 26, "bold"),
-                     text_color=TEXT_PRI).pack(pady=(0, 2))
-        if subtitle:
-            ctk.CTkLabel(parent, text=subtitle,
-                         font=("Helvetica", 13),
-                         text_color=TEXT_SEC).pack(pady=(0, 18))
 
-    def _card(self, parent, **kw):
-        return ctk.CTkFrame(parent, fg_color=BG_CARD, corner_radius=16,
-                            border_width=1, border_color=BORDER, **kw)
+# ── helpers ──────────────────────────────────
 
-    def _btn(self, parent, text, cmd, full=True, color=ACCENT, hover=None, **kw):
-        hover = hover or self._darken(color)
-        b = ctk.CTkButton(parent, text=text, command=cmd,
-                          fg_color=color, hover_color=hover,
-                          font=("Helvetica", 13, "bold"),
-                          corner_radius=10, height=44, **kw)
-        if full:
-            b.pack(fill="x", pady=4)
-        return b
+def make_card(parent, **kw):
+    return ctk.CTkFrame(parent, fg_color=CLR_CARD, corner_radius=14,
+                        border_width=1, border_color=CLR_BORDER, **kw)
 
-    def _entry(self, parent, placeholder, show=None):
-        e = ctk.CTkEntry(parent, placeholder_text=placeholder,
-                         fg_color=BG_FIELD, border_color=BORDER,
-                         text_color=TEXT_PRI, placeholder_text_color=TEXT_SEC,
-                         corner_radius=10, height=44, show=show or "")
-        e.pack(fill="x", pady=4)
-        return e
+def make_label(parent, text, font=FONT_BODY, color=CLR_TEXT, **kw):
+    return ctk.CTkLabel(parent, text=text, font=font, text_color=color, **kw)
 
-    def _divider(self, parent):
-        ctk.CTkFrame(parent, height=1, fg_color=BORDER).pack(fill="x", pady=10)
+def make_entry(parent, placeholder="", show=""):
+    return ctk.CTkEntry(parent, placeholder_text=placeholder,
+                        fg_color=CLR_ACCENT, border_color=CLR_BORDER,
+                        text_color=CLR_TEXT, placeholder_text_color=CLR_MUTED,
+                        corner_radius=8, height=40, show=show)
 
-    @staticmethod
-    def _darken(hex_color):
-        # simple darken for hover
-        mapping = {
-            ACCENT: "#2563EB", ACCENT2: "#4F46E5",
-            SUCCESS: "#059669", WARNING: "#D97706",
-            "#374151": "#1F2937"
-        }
-        return mapping.get(hex_color, "#1e3a5f")
+def make_btn(parent, text, cmd, color=CLR_BLUE, hover=None, **kw):
+    hover = hover or color
+    return ctk.CTkButton(parent, text=text, command=cmd,
+                         fg_color=color, hover_color=hover,
+                         text_color="#ffffff", corner_radius=10,
+                         font=FONT_BODY, height=42, **kw)
 
-    # ─── LANDING ─────────────────────────────────────────────────────────
+def make_ghost_btn(parent, text, cmd, color=CLR_MUTED, **kw):
+    return ctk.CTkButton(parent, text=text, command=cmd,
+                         fg_color="transparent", hover_color=CLR_ACCENT,
+                         text_color=color, corner_radius=8,
+                         font=FONT_SMALL, height=36, **kw)
 
-    def _show_landing(self):
-        self._clear_frame()
+def divider(parent):
+    ctk.CTkFrame(parent, height=1, fg_color=CLR_BORDER).pack(fill="x", pady=8)
 
-        # top stripe
-        stripe = ctk.CTkFrame(self, height=4, fg_color=ACCENT, corner_radius=0)
-        stripe.pack(fill="x")
+def info_row(parent, label, value, val_color=CLR_TEXT):
+    row = ctk.CTkFrame(parent, fg_color="transparent")
+    row.pack(fill="x", pady=3)
+    make_label(row, label, font=FONT_SMALL, color=CLR_MUTED, anchor="w").pack(side="left")
+    make_label(row, value, font=FONT_SMALL, color=val_color, anchor="e").pack(side="right")
 
-        main = ctk.CTkFrame(self, fg_color="transparent")
-        main.pack(expand=True, fill="both", padx=30)
 
-        # logo area
-        ctk.CTkLabel(main, text="🚆", font=("Helvetica", 56)).pack(pady=(50, 0))
-        ctk.CTkLabel(main, text="KRL Commuter Line",
-                     font=("Helvetica", 24, "bold"),
-                     text_color=TEXT_PRI).pack(pady=(6, 2))
-        ctk.CTkLabel(main, text="Sistem Tiket Digital",
-                     font=("Helvetica", 13),
-                     text_color=TEXT_SEC).pack(pady=(0, 40))
+# ── screens ───────────────────────────────────
 
-        card = self._card(main)
-        card.pack(fill="x", pady=4)
-        inner = ctk.CTkFrame(card, fg_color="transparent")
-        inner.pack(fill="x", padx=20, pady=20)
+class BaseScreen(ctk.CTkFrame):
+    def __init__(self, parent, app):
+        super().__init__(parent, fg_color=CLR_BG)
+        self.app = app
+    def on_show(self): pass
 
-        self._btn(inner, "Login", self._show_login)
-        self._btn(inner, "Register", self._show_register, color=ACCENT2)
 
-        ctk.CTkLabel(main, text="© 2025 KRL Digital System",
-                     font=("Helvetica", 10),
-                     text_color=TEXT_SEC).pack(pady=(30, 0))
-        self._check_alert()
+class MainScreen(BaseScreen):
+    def __init__(self, parent, app):
+        super().__init__(parent, app)
 
-    # ─── REGISTER ────────────────────────────────────────────────────────
+        card = make_card(self)
+        card.pack(fill="both", expand=True)
 
-    def _show_register(self):
-        self._clear_frame()
-        main = ctk.CTkScrollableFrame(self, fg_color=BG_DARK)
-        main.pack(expand=True, fill="both", padx=30, pady=30)
+        # header
+        head = ctk.CTkFrame(card, fg_color=CLR_ACCENT, corner_radius=12)
+        head.pack(fill="x", padx=16, pady=(16, 12))
+        make_label(head, "🚆", font=("Segoe UI", 40)).pack(pady=(14, 2))
+        make_label(head, "Commuter Line", font=FONT_TITLE).pack()
+        make_label(head, "Sistem Tiket Digital", font=FONT_SMALL, color=CLR_MUTED).pack(pady=(0, 14))
 
-        self._header(main, "Buat Akun", "Daftar untuk memulai perjalanan")
+        body = ctk.CTkFrame(card, fg_color="transparent")
+        body.pack(fill="both", expand=True, padx=16, pady=8)
 
-        card = self._card(main)
-        card.pack(fill="x")
-        inner = ctk.CTkFrame(card, fg_color="transparent")
-        inner.pack(fill="x", padx=20, pady=20)
+        make_btn(body, "👤  Register", lambda: app.show(RegisterScreen),
+                 color="#1e3a5f", hover=CLR_BLUE).pack(fill="x", pady=6)
+        make_btn(body, "🔐  Login", lambda: app.show(LoginScreen),
+                 color="#1a3d2b", hover=CLR_GREEN).pack(fill="x", pady=6)
+        make_btn(body, "✖  Keluar", self._keluar,
+                 color="#3d1a1a", hover=CLR_RED).pack(fill="x", pady=6)
 
-        ctk.CTkLabel(inner, text="Username", font=("Helvetica", 12),
-                     text_color=TEXT_SEC).pack(anchor="w")
-        e_user = self._entry(inner, "Masukkan username")
+    def _keluar(self):
+        if messagebox.askyesno("Keluar", "Yakin ingin keluar?"):
+            self.app.destroy()
 
-        ctk.CTkLabel(inner, text="Password", font=("Helvetica", 12),
-                     text_color=TEXT_SEC).pack(anchor="w", pady=(8, 0))
-        e_pass = self._entry(inner, "Masukkan password", show="●")
 
-        self._divider(inner)
+class RegisterScreen(BaseScreen):
+    def __init__(self, parent, app):
+        super().__init__(parent, app)
+        card = make_card(self)
+        card.pack(fill="both", expand=True)
 
-        def do():
-            if do_register(e_user.get(), e_pass.get()):
-                self._check_alert()
-                self.after(800, self._show_landing)
-            else:
-                self._check_alert()
+        make_ghost_btn(card, "← Kembali", lambda: app.show(MainScreen),
+                       anchor="w").pack(anchor="w", padx=16, pady=(14, 0))
+        make_label(card, "Register Akun", font=FONT_TITLE).pack(pady=(4, 14))
 
-        self._btn(inner, "Daftar Sekarang", do)
-        self._btn(inner, "← Kembali", self._show_landing,
-                  color="#374151", hover="#1F2937")
+        body = ctk.CTkFrame(card, fg_color="transparent")
+        body.pack(fill="x", padx=20)
 
-    # ─── LOGIN ───────────────────────────────────────────────────────────
+        make_label(body, "Username", font=FONT_SMALL, color=CLR_MUTED, anchor="w").pack(fill="x")
+        self.ent_user = make_entry(body, "Masukkan username")
+        self.ent_user.pack(fill="x", pady=(2, 10))
 
-    def _show_login(self):
-        self._clear_frame()
-        main = ctk.CTkScrollableFrame(self, fg_color=BG_DARK)
-        main.pack(expand=True, fill="both", padx=30, pady=30)
+        make_label(body, "Password", font=FONT_SMALL, color=CLR_MUTED, anchor="w").pack(fill="x")
+        self.ent_pass = make_entry(body, "Masukkan password", show="●")
+        self.ent_pass.pack(fill="x", pady=(2, 16))
 
-        self._header(main, "Selamat Datang", "Masuk ke akun Anda")
+        make_btn(body, "Daftar Sekarang", self._register,
+                 color=CLR_BLUE).pack(fill="x")
 
-        card = self._card(main)
-        card.pack(fill="x")
-        inner = ctk.CTkFrame(card, fg_color="transparent")
-        inner.pack(fill="x", padx=20, pady=20)
+    def on_show(self):
+        self.ent_user.delete(0, "end")
+        self.ent_pass.delete(0, "end")
 
-        ctk.CTkLabel(inner, text="Username", font=("Helvetica", 12),
-                     text_color=TEXT_SEC).pack(anchor="w")
-        e_user = self._entry(inner, "Masukkan username")
+    def _register(self):
+        u = self.ent_user.get().strip()
+        p = self.ent_pass.get().strip()
+        if not u or not p:
+            self.app.popup("⚠️ Username dan password wajib diisi!")
+            return
+        ok = register_logic(u, p)
+        self.app.flush_alert()
+        if ok:
+            self.app.show(MainScreen)
 
-        ctk.CTkLabel(inner, text="Password", font=("Helvetica", 12),
-                     text_color=TEXT_SEC).pack(anchor="w", pady=(8, 0))
-        e_pass = self._entry(inner, "Masukkan password", show="●")
 
-        self._divider(inner)
+class LoginScreen(BaseScreen):
+    def __init__(self, parent, app):
+        super().__init__(parent, app)
+        card = make_card(self)
+        card.pack(fill="both", expand=True)
 
-        def do():
-            if do_login(e_user.get(), e_pass.get()):
-                self._check_alert()
-                self.after(600, self._show_dashboard)
-            else:
-                self._check_alert()
+        make_ghost_btn(card, "← Kembali", lambda: app.show(MainScreen),
+                       anchor="w").pack(anchor="w", padx=16, pady=(14, 0))
+        make_label(card, "Login", font=FONT_TITLE).pack(pady=(4, 14))
 
-        self._btn(inner, "Login", do)
-        self._btn(inner, "← Kembali", self._show_landing,
-                  color="#374151", hover="#1F2937")
+        body = ctk.CTkFrame(card, fg_color="transparent")
+        body.pack(fill="x", padx=20)
 
-    # ─── DASHBOARD ───────────────────────────────────────────────────────
+        make_label(body, "Username", font=FONT_SMALL, color=CLR_MUTED, anchor="w").pack(fill="x")
+        self.ent_user = make_entry(body, "Masukkan username")
+        self.ent_user.pack(fill="x", pady=(2, 10))
 
-    def _show_dashboard(self):
-        self._clear_frame()
-        main = ctk.CTkScrollableFrame(self, fg_color=BG_DARK)
-        main.pack(expand=True, fill="both", padx=24, pady=24)
+        make_label(body, "Password", font=FONT_SMALL, color=CLR_MUTED, anchor="w").pack(fill="x")
+        self.ent_pass = make_entry(body, "Masukkan password", show="●")
+        self.ent_pass.pack(fill="x", pady=(2, 16))
 
-        # Greeting
-        ctk.CTkLabel(main, text=f"Halo, {current_user} 👋",
-                     font=("Helvetica", 22, "bold"),
-                     text_color=TEXT_PRI).pack(anchor="w", pady=(0, 4))
-        ctk.CTkLabel(main, text="Mau pergi ke mana hari ini?",
-                     font=("Helvetica", 13), text_color=TEXT_SEC).pack(anchor="w")
+        make_btn(body, "Masuk", self._login, color=CLR_GREEN).pack(fill="x")
 
-        # Saldo card
-        saldo_card = ctk.CTkFrame(main, fg_color=ACCENT, corner_radius=16, height=90)
-        saldo_card.pack(fill="x", pady=(18, 6))
-        saldo_card.pack_propagate(False)
+    def on_show(self):
+        self.ent_user.delete(0, "end")
+        self.ent_pass.delete(0, "end")
 
-        sc_inner = ctk.CTkFrame(saldo_card, fg_color="transparent")
-        sc_inner.place(relx=0.05, rely=0.5, anchor="w")
-        ctk.CTkLabel(sc_inner, text="SALDO ANDA", font=("Helvetica", 10, "bold"),
-                     text_color="#BFD4FF").pack(anchor="w")
-        ctk.CTkLabel(sc_inner, text=f"Rp {uang:,}",
-                     font=("Helvetica", 26, "bold"),
-                     text_color="#FFFFFF").pack(anchor="w")
+    def _login(self):
+        u = self.ent_user.get().strip()
+        p = self.ent_pass.get().strip()
+        ok = login_logic(u, p)
+        self.app.flush_alert()
+        if ok:
+            self.app.current_user = u
+            self.app.show(MenuScreen)
 
-        # Badge member
+
+class MenuScreen(BaseScreen):
+    def __init__(self, parent, app):
+        super().__init__(parent, app)
+        card = make_card(self)
+        card.pack(fill="both", expand=True)
+
+        # header user
+        self.head = ctk.CTkFrame(card, fg_color=CLR_ACCENT, corner_radius=10)
+        self.head.pack(fill="x", padx=16, pady=(16, 10))
+        self.lbl_user   = make_label(self.head, "", font=FONT_TITLE)
+        self.lbl_user.pack(pady=(12, 0))
+        self.lbl_saldo  = make_label(self.head, "", font=FONT_BODY, color=CLR_AMBER)
+        self.lbl_saldo.pack()
+        self.lbl_member = make_label(self.head, "", font=FONT_SMALL, color=CLR_MUTED)
+        self.lbl_member.pack(pady=(0, 12))
+
+        body = ctk.CTkFrame(card, fg_color="transparent")
+        body.pack(fill="both", expand=True, padx=16, pady=4)
+
+        entries = [
+            ("🗺   Daftar Stasiun",  StationsScreen, "#1e3a5f", CLR_BLUE),
+            ("🎫   Pilih Rute",       RouteScreen,    "#1a3d2b", CLR_GREEN),
+            ("💳   Isi Saldo / Member", SaldoScreen,  "#3d3010", CLR_AMBER),
+        ]
+        for txt, scr, bg, hv in entries:
+            make_btn(body, txt, lambda s=scr: app.show(s),
+                     color=bg, hover=hv).pack(fill="x", pady=5)
+
+        divider(body)
+        make_btn(body, "↩  Logout", self._logout,
+                 color="#3d1a1a", hover=CLR_RED).pack(fill="x", pady=5)
+
+    def on_show(self):
+        self.lbl_user.configure(text=f"Halo, {self.app.current_user} 👋")
+        self.lbl_saldo.configure(text=f"Saldo: Rp {uang:,.0f}".replace(",", "."))
+        self.lbl_member.configure(
+            text="⭐ Member Aktif" if member else "Member: Tidak Aktif",
+            text_color=CLR_AMBER if member else CLR_MUTED)
+
+    def _logout(self):
+        set_alert("✅ Logout berhasil!")
+        self.app.flush_alert()
+        self.app.current_user = None
+        self.app.show(MainScreen)
+
+
+class StationsScreen(BaseScreen):
+    def __init__(self, parent, app):
+        super().__init__(parent, app)
+        card = make_card(self)
+        card.pack(fill="both", expand=True)
+
+        make_ghost_btn(card, "← Kembali", lambda: app.show(MenuScreen)).pack(
+            anchor="w", padx=16, pady=(14, 0))
+        make_label(card, "Daftar Stasiun", font=FONT_TITLE).pack(pady=(4, 10))
+
+        scroll = ctk.CTkScrollableFrame(card, fg_color="transparent")
+        scroll.pack(fill="both", expand=True, padx=16, pady=(0, 12))
+
+        for i, s in enumerate(stasiun, 1):
+            row = ctk.CTkFrame(scroll, fg_color=CLR_ACCENT, corner_radius=8)
+            row.pack(fill="x", pady=4)
+            badge = ctk.CTkFrame(row, fg_color=CLR_BLUE, corner_radius=6,
+                                 width=28, height=28)
+            badge.pack(side="left", padx=(10, 8), pady=8)
+            badge.pack_propagate(False)
+            make_label(badge, str(i), font=FONT_SMALL).pack(expand=True)
+            make_label(row, s, font=FONT_BODY, anchor="w").pack(
+                side="left", pady=8)
+
+        make_btn(card, "Pilih Rute →",
+                 lambda: app.show(RouteScreen),
+                 color=CLR_GREEN).pack(fill="x", padx=16, pady=(0, 14))
+
+
+class RouteScreen(BaseScreen):
+    def __init__(self, parent, app):
+        super().__init__(parent, app)
+        card = make_card(self)
+        card.pack(fill="both", expand=True)
+
+        make_ghost_btn(card, "← Kembali", lambda: app.show(MenuScreen)).pack(
+            anchor="w", padx=16, pady=(14, 0))
+        make_label(card, "Pilih Rute", font=FONT_TITLE).pack(pady=(4, 14))
+
+        body = ctk.CTkFrame(card, fg_color="transparent")
+        body.pack(fill="x", padx=20)
+
+        make_label(body, "Stasiun Asal", font=FONT_SMALL, color=CLR_MUTED,
+                   anchor="w").pack(fill="x")
+        self.cb_from = ctk.CTkComboBox(
+            body, values=stasiun,
+            fg_color=CLR_ACCENT, border_color=CLR_BORDER,
+            button_color=CLR_BLUE, dropdown_fg_color=CLR_CARD,
+            text_color=CLR_TEXT, dropdown_text_color=CLR_TEXT,
+            corner_radius=8, height=40, state="readonly")
+        self.cb_from.set("-- Pilih --")
+        self.cb_from.pack(fill="x", pady=(2, 12))
+
+        make_label(body, "Stasiun Tujuan", font=FONT_SMALL, color=CLR_MUTED,
+                   anchor="w").pack(fill="x")
+        self.cb_to = ctk.CTkComboBox(
+            body, values=stasiun,
+            fg_color=CLR_ACCENT, border_color=CLR_BORDER,
+            button_color=CLR_BLUE, dropdown_fg_color=CLR_CARD,
+            text_color=CLR_TEXT, dropdown_text_color=CLR_TEXT,
+            corner_radius=8, height=40, state="readonly")
+        self.cb_to.set("-- Pilih --")
+        self.cb_to.pack(fill="x", pady=(2, 20))
+
+        make_btn(body, "Hitung Harga →", self._hitung, color=CLR_BLUE).pack(fill="x")
+
+    def _hitung(self):
+        dari = self.cb_from.get()
+        ke   = self.cb_to.get()
+        if dari == "-- Pilih --" or ke == "-- Pilih --":
+            self.app.popup("⚠️ Pilih stasiun asal dan tujuan!")
+            return
+        if dari == ke:
+            self.app.popup("⚠️ Stasiun asal dan tujuan tidak boleh sama!")
+            return
+        result = hitung_rute(dari, ke)
+        if result is None:
+            self.app.flush_alert()
+            return
+        self.app._route_data = result
+        self.app.show(RouteConfirmScreen)
+
+
+class RouteConfirmScreen(BaseScreen):
+    def __init__(self, parent, app):
+        super().__init__(parent, app)
+        card = make_card(self)
+        card.pack(fill="both", expand=True)
+
+        make_ghost_btn(card, "← Ubah Rute", lambda: app.show(RouteScreen)).pack(
+            anchor="w", padx=16, pady=(14, 0))
+        make_label(card, "Konfirmasi Rute", font=FONT_TITLE).pack(pady=(4, 14))
+
+        self.body = ctk.CTkFrame(card, fg_color="transparent")
+        self.body.pack(fill="both", expand=True, padx=20)
+
+        self.detail_card = make_card(self.body)
+        self.detail_card.pack(fill="x", pady=(0, 12))
+
+        self.rows_frame = ctk.CTkFrame(self.detail_card, fg_color="transparent")
+        self.rows_frame.pack(fill="x", padx=14, pady=14)
+
+        self.lbl_promo = make_label(
+            self.body,
+            "💡 Jadi member dan hemat 30% setiap perjalanan!",
+            font=FONT_SMALL, color=CLR_AMBER, wraplength=360)
+
+        self.lbl_saldo_now = make_label(
+            self.body, "", font=FONT_SMALL, color=CLR_MUTED)
+        self.lbl_saldo_now.pack(pady=(0, 10))
+
+        make_btn(self.body, "✅  Bayar Sekarang", self._bayar,
+                 color=CLR_GREEN).pack(fill="x", pady=(0, 8))
+        make_btn(self.body, "Batal", self._batal,
+                 color="#3d1a1a", hover=CLR_RED).pack(fill="x")
+
+    def on_show(self):
+        r = self.app._route_data
+        for w in self.rows_frame.winfo_children():
+            w.destroy()
+
+        info_row(self.rows_frame, "Dari", r["dari"], CLR_TEXT)
+        info_row(self.rows_frame, "Ke",   r["ke"],   CLR_TEXT)
+        info_row(self.rows_frame, "Jarak", f"{r['jarak']} stasiun", CLR_TEXT)
+        info_row(self.rows_frame, "Harga",
+                 f"Rp {r['harga']:,.0f}".replace(",", "."), CLR_AMBER)
+        if r["diskon"]:
+            info_row(self.rows_frame, "Diskon", "30% Member ⭐", CLR_GREEN)
+
+        if r["diskon"]:
+            self.lbl_promo.pack_forget()
+        else:
+            self.lbl_promo.pack(pady=(0, 8))
+
+        self.lbl_saldo_now.configure(
+            text=f"Saldo saat ini: Rp {uang:,.0f}".replace(",", "."))
+
+    def _bayar(self):
+        r = self.app._route_data
+        ok = bayar_rute(r["harga"])
+        self.app.flush_alert()
+        if ok:
+            self.app.show(MenuScreen)
+
+    def _batal(self):
+        set_alert("⚠️ Pembelian dibatalkan.")
+        self.app.flush_alert()
+        self.app.show(RouteScreen)
+
+
+class SaldoScreen(BaseScreen):
+    def __init__(self, parent, app):
+        super().__init__(parent, app)
+        card = make_card(self)
+        card.pack(fill="both", expand=True)
+
+        make_ghost_btn(card, "← Kembali", lambda: app.show(MenuScreen)).pack(
+            anchor="w", padx=16, pady=(14, 0))
+        make_label(card, "Saldo & Member", font=FONT_TITLE).pack(pady=(4, 14))
+
+        info = make_card(card)
+        info.pack(fill="x", padx=16, pady=(0, 14))
+        inf = ctk.CTkFrame(info, fg_color="transparent")
+        inf.pack(fill="x", padx=14, pady=14)
+
+        self.lbl_saldo  = make_label(inf, "", font=("Segoe UI", 26, "bold"),
+                                     color=CLR_AMBER)
+        self.lbl_saldo.pack(pady=(0, 4))
+        self.lbl_member = make_label(inf, "", font=FONT_SMALL, color=CLR_MUTED)
+        self.lbl_member.pack()
+
+        body = ctk.CTkFrame(card, fg_color="transparent")
+        body.pack(fill="x", padx=16)
+
+        make_btn(body, "💰  Isi Saldo", lambda: app.show(TopupScreen),
+                 color="#1a3d2b", hover=CLR_GREEN).pack(fill="x", pady=6)
+        self.btn_member = make_btn(
+            body, "⭐  Beli Member  (Rp 20.000)",
+            lambda: app.show(MemberScreen), color="#3d3010", hover=CLR_AMBER)
+        self.btn_member.pack(fill="x", pady=6)
+
+    def on_show(self):
+        self.lbl_saldo.configure(
+            text=f"Rp {uang:,.0f}".replace(",", "."))
+        self.lbl_member.configure(
+            text="⭐ Member Aktif" if member else "Member: Tidak Aktif",
+            text_color=CLR_AMBER if member else CLR_MUTED)
         if member:
-            badge = ctk.CTkFrame(saldo_card, fg_color="#1D4ED8", corner_radius=8)
-            badge.place(relx=0.95, rely=0.5, anchor="e", x=-14)
-            ctk.CTkLabel(badge, text="✦ MEMBER", font=("Helvetica", 10, "bold"),
-                         text_color="#FFFFFF").pack(padx=10, pady=4)
+            self.btn_member.pack_forget()
+        else:
+            self.btn_member.pack(fill="x", pady=6)
 
-        # Menu grid
-        ctk.CTkLabel(main, text="Menu", font=("Helvetica", 14, "bold"),
-                     text_color=TEXT_SEC).pack(anchor="w", pady=(20, 8))
 
-        grid = ctk.CTkFrame(main, fg_color="transparent")
-        grid.pack(fill="x")
+class TopupScreen(BaseScreen):
+    def __init__(self, parent, app):
+        super().__init__(parent, app)
+        card = make_card(self)
+        card.pack(fill="both", expand=True)
+
+        make_ghost_btn(card, "← Kembali", lambda: app.show(SaldoScreen)).pack(
+            anchor="w", padx=16, pady=(14, 0))
+        make_label(card, "Isi Saldo", font=FONT_TITLE).pack(pady=(4, 14))
+
+        body = ctk.CTkFrame(card, fg_color="transparent")
+        body.pack(fill="x", padx=20)
+
+        make_label(body, "Pilih Nominal Cepat", font=FONT_SMALL,
+                   color=CLR_MUTED, anchor="w").pack(fill="x", pady=(0, 6))
+
+        grid = ctk.CTkFrame(body, fg_color="transparent")
+        grid.pack(fill="x", pady=(0, 14))
         grid.columnconfigure((0, 1), weight=1)
 
-        menus = [
-            ("🗺️", "Pilih Rute", self._show_pilih_rute, ACCENT),
-            ("🚉", "Daftar Stasiun", self._show_stasiun, ACCENT2),
-            ("💳", "Isi Saldo", self._show_top_up, SUCCESS),
-            ("👑", "Member", self._show_member, WARNING),
-        ]
+        nominals = [20_000, 50_000, 100_000, 200_000]
+        self.ent_amount = None  # akan dibuat di bawah
 
-        for i, (icon, label, cmd, color) in enumerate(menus):
-            btn_card = ctk.CTkFrame(grid, fg_color=BG_CARD, corner_radius=14,
-                                    border_width=1, border_color=BORDER)
-            btn_card.grid(row=i//2, column=i%2, padx=5, pady=5, sticky="nsew")
-            btn_card.configure(cursor="hand2")
+        def set_nominal(n):
+            self.ent_amount.delete(0, "end")
+            self.ent_amount.insert(0, str(n))
 
-            inner = ctk.CTkFrame(btn_card, fg_color="transparent")
-            inner.pack(expand=True, padx=14, pady=16)
+        for idx, n in enumerate(nominals):
+            r, c = divmod(idx, 2)
+            ctk.CTkButton(
+                grid, text=f"Rp {n:,.0f}".replace(",", "."),
+                command=lambda x=n: set_nominal(x),
+                fg_color=CLR_ACCENT, hover_color=CLR_BLUE,
+                text_color=CLR_TEXT, corner_radius=8,
+                font=FONT_SMALL, height=38
+            ).grid(row=r, column=c, padx=4, pady=4, sticky="ew")
 
-            dot = ctk.CTkFrame(inner, fg_color=color, width=40, height=40,
-                               corner_radius=12)
-            dot.pack(pady=(0, 8))
-            dot.pack_propagate(False)
-            ctk.CTkLabel(dot, text=icon, font=("Helvetica", 18)).pack(expand=True)
+        make_label(body, "Atau masukkan nominal lain",
+                   font=FONT_SMALL, color=CLR_MUTED, anchor="w").pack(fill="x")
+        self.ent_amount = make_entry(body, "Contoh: 75000")
+        self.ent_amount.pack(fill="x", pady=(4, 16))
 
-            ctk.CTkLabel(inner, text=label, font=("Helvetica", 12, "bold"),
-                         text_color=TEXT_PRI).pack()
+        make_btn(body, "Tambah Saldo", self._topup, color=CLR_GREEN).pack(fill="x")
 
-            btn_card.bind("<Button-1>", lambda e, c=cmd: c())
-            for child in btn_card.winfo_children():
-                child.bind("<Button-1>", lambda e, c=cmd: c())
-                for gc in child.winfo_children():
-                    gc.bind("<Button-1>", lambda e, c=cmd: c())
+    def on_show(self):
+        if self.ent_amount:
+            self.ent_amount.delete(0, "end")
 
-        # Logout
-        self._divider(main)
-        self._btn(main, "Logout", self._do_logout, color="#374151", hover="#1F2937")
-        self._check_alert()
+    def _topup(self):
+        global uang
+        raw = self.ent_amount.get().replace(".", "").replace(",", "").strip()
+        uang = top_up(uang, raw)
+        self.app.flush_alert()
+        self.app.show(SaldoScreen)
 
-    # ─── DAFTAR STASIUN ──────────────────────────────────────────────────
 
-    def _show_stasiun(self):
-        self._clear_frame()
-        main = ctk.CTkScrollableFrame(self, fg_color=BG_DARK)
-        main.pack(expand=True, fill="both", padx=24, pady=24)
+class MemberScreen(BaseScreen):
+    def __init__(self, parent, app):
+        super().__init__(parent, app)
+        card = make_card(self)
+        card.pack(fill="both", expand=True)
 
-        self._header(main, "Daftar Stasiun", f"{len(stasiun)} stasiun tersedia")
+        make_ghost_btn(card, "← Kembali", lambda: app.show(SaldoScreen)).pack(
+            anchor="w", padx=16, pady=(14, 0))
+        make_label(card, "Beli Member", font=FONT_TITLE).pack(pady=(4, 14))
 
-        for i, s in enumerate(stasiun):
-            row = ctk.CTkFrame(main, fg_color=BG_CARD, corner_radius=12,
-                               border_width=1, border_color=BORDER)
-            row.pack(fill="x", pady=3)
-            inner = ctk.CTkFrame(row, fg_color="transparent")
-            inner.pack(fill="x", padx=16, pady=12)
+        info = make_card(card)
+        info.pack(fill="x", padx=16, pady=(0, 16))
+        inf = ctk.CTkFrame(info, fg_color="transparent")
+        inf.pack(fill="x", padx=14, pady=14)
 
-            num = ctk.CTkFrame(inner, fg_color=ACCENT, width=30, height=30,
-                               corner_radius=8)
-            num.pack(side="left", padx=(0, 12))
-            num.pack_propagate(False)
-            ctk.CTkLabel(num, text=str(i+1), font=("Helvetica", 11, "bold"),
-                         text_color="#FFF").pack(expand=True)
+        info_row(inf, "Harga Member", "Rp 20.000", CLR_TEXT)
+        info_row(inf, "Keuntungan",   "Diskon 30% setiap rute", CLR_GREEN)
+        self.lbl_saldo = make_label(inf, "", font=FONT_SMALL, color=CLR_MUTED)
+        self.lbl_saldo.pack(anchor="w", pady=(6, 0))
 
-            ctk.CTkLabel(inner, text=s, font=("Helvetica", 13),
-                         text_color=TEXT_PRI).pack(side="left")
+        body = ctk.CTkFrame(card, fg_color="transparent")
+        body.pack(fill="x", padx=16)
 
-        self._divider(main)
-        self._btn(main, "← Kembali ke Dashboard", self._show_dashboard,
-                  color="#374151", hover="#1F2937")
+        make_btn(body, "⭐  Beli Member", self._beli,
+                 color="#3d3010", hover=CLR_AMBER).pack(fill="x", pady=6)
+        make_btn(body, "Batal", lambda: app.show(SaldoScreen),
+                 color="#3d1a1a", hover=CLR_RED).pack(fill="x")
 
-    # ─── PILIH RUTE ──────────────────────────────────────────────────────
+    def on_show(self):
+        self.lbl_saldo.configure(
+            text=f"Saldo Anda: Rp {uang:,.0f}".replace(",", "."))
 
-    def _show_pilih_rute(self):
-        self._clear_frame()
-        main = ctk.CTkScrollableFrame(self, fg_color=BG_DARK)
-        main.pack(expand=True, fill="both", padx=24, pady=24)
+    def _beli(self):
+        pilih_member_logic()
+        self.app.flush_alert()
+        self.app.show(SaldoScreen)
 
-        self._header(main, "Pilih Rute", "Tentukan perjalanan Anda")
 
-        card = self._card(main)
-        card.pack(fill="x")
-        inner = ctk.CTkFrame(card, fg_color="transparent")
-        inner.pack(fill="x", padx=20, pady=20)
-
-        # Stasiun dropdown
-        ctk.CTkLabel(inner, text="Stasiun Asal", font=("Helvetica", 12),
-                     text_color=TEXT_SEC).pack(anchor="w")
-        var_awal = ctk.StringVar(value=stasiun[0])
-        dd_awal = ctk.CTkOptionMenu(inner, values=stasiun, variable=var_awal,
-                                    fg_color=BG_FIELD, button_color=ACCENT,
-                                    button_hover_color="#2563EB",
-                                    text_color=TEXT_PRI, corner_radius=10,
-                                    dropdown_fg_color=BG_CARD,
-                                    dropdown_text_color=TEXT_PRI)
-        dd_awal.pack(fill="x", pady=4)
-
-        ctk.CTkLabel(inner, text="Stasiun Tujuan", font=("Helvetica", 12),
-                     text_color=TEXT_SEC).pack(anchor="w", pady=(8, 0))
-        var_tujuan = ctk.StringVar(value=stasiun[1])
-        dd_tujuan = ctk.CTkOptionMenu(inner, values=stasiun, variable=var_tujuan,
-                                      fg_color=BG_FIELD, button_color=ACCENT,
-                                      button_hover_color="#2563EB",
-                                      text_color=TEXT_PRI, corner_radius=10,
-                                      dropdown_fg_color=BG_CARD,
-                                      dropdown_text_color=TEXT_PRI)
-        dd_tujuan.pack(fill="x", pady=4)
-
-        # Result area
-        result_frame = ctk.CTkFrame(inner, fg_color="transparent")
-        result_frame.pack(fill="x")
-
-        def cari():
-            for w in result_frame.winfo_children():
-                w.destroy()
-            awal = var_awal.get()
-            tujuan = var_tujuan.get()
-            if awal == tujuan:
-                self._toast("⚠️ Stasiun asal dan tujuan sama!", WARNING)
-                return
-            info = hitung_rute(awal, tujuan)
-            if not info:
-                self._check_alert()
-                return
-
-            self._divider(result_frame)
-
-            def row_info(lbl, val, accent=False):
-                r = ctk.CTkFrame(result_frame, fg_color="transparent")
-                r.pack(fill="x", pady=2)
-                ctk.CTkLabel(r, text=lbl, font=("Helvetica", 12),
-                             text_color=TEXT_SEC, width=90, anchor="w").pack(side="left")
-                ctk.CTkLabel(r, text=val,
-                             font=("Helvetica", 13, "bold" if accent else "normal"),
-                             text_color=ACCENT if accent else TEXT_PRI).pack(side="left")
-
-            row_info("Dari", info["awal"])
-            row_info("Ke", info["tujuan"])
-            row_info("Jarak", f"{info['jarak']} stasiun")
-            row_info("Harga", f"Rp {info['harga']:,}", accent=True)
-
-            if info["diskon"]:
-                disc = ctk.CTkFrame(result_frame, fg_color="#064E3B", corner_radius=8)
-                disc.pack(fill="x", pady=6)
-                ctk.CTkLabel(disc, text="✦ Diskon 30% member aktif",
-                             font=("Helvetica", 11, "bold"),
-                             text_color=SUCCESS).pack(pady=6)
-
-            def beli():
-                if konfirmasi_rute(info):
-                    self._check_alert()
-                    self.after(600, self._show_dashboard)
-                else:
-                    self._check_alert()
-
-            self._btn(result_frame, f"Beli Tiket  •  Rp {info['harga']:,}", beli)
-
-        self._divider(inner)
-        self._btn(inner, "Cari Rute", cari)
-        self._btn(inner, "← Kembali", self._show_dashboard,
-                  color="#374151", hover="#1F2937")
-
-    # ─── TOP UP ──────────────────────────────────────────────────────────
-
-    def _show_top_up(self):
-        self._clear_frame()
-        main = ctk.CTkScrollableFrame(self, fg_color=BG_DARK)
-        main.pack(expand=True, fill="both", padx=24, pady=24)
-
-        self._header(main, "Isi Saldo", "Tambah saldo untuk perjalanan")
-
-        # Saldo card
-        sc = ctk.CTkFrame(main, fg_color=ACCENT, corner_radius=14)
-        sc.pack(fill="x", pady=(0, 16))
-        ctk.CTkLabel(sc, text="SALDO SAAT INI", font=("Helvetica", 10, "bold"),
-                     text_color="#BFD4FF").pack(pady=(14, 0))
-        ctk.CTkLabel(sc, text=f"Rp {uang:,}",
-                     font=("Helvetica", 28, "bold"),
-                     text_color="#FFF").pack(pady=(0, 14))
-
-        card = self._card(main)
-        card.pack(fill="x")
-        inner = ctk.CTkFrame(card, fg_color="transparent")
-        inner.pack(fill="x", padx=20, pady=20)
-
-        ctk.CTkLabel(inner, text="Jumlah Top Up", font=("Helvetica", 12),
-                     text_color=TEXT_SEC).pack(anchor="w")
-        e_jumlah = self._entry(inner, "Contoh: 50000")
-
-        # Quick select
-        ctk.CTkLabel(inner, text="Pilih Cepat", font=("Helvetica", 12),
-                     text_color=TEXT_SEC).pack(anchor="w", pady=(10, 4))
-        quick = ctk.CTkFrame(inner, fg_color="transparent")
-        quick.pack(fill="x")
-        quick.columnconfigure((0, 1, 2), weight=1)
-        for i, nominal in enumerate([20000, 50000, 100000]):
-            def fill(n=nominal):
-                e_jumlah.delete(0, "end")
-                e_jumlah.insert(0, str(n))
-            ctk.CTkButton(quick, text=f"Rp {nominal:,}", command=fill,
-                          fg_color=BG_FIELD, hover_color=BORDER,
-                          text_color=TEXT_PRI, font=("Helvetica", 11),
-                          corner_radius=8, height=36).grid(row=0, column=i,
-                          padx=3, pady=2, sticky="ew")
-
-        self._divider(inner)
-
-        def do():
-            global uang
-            uang = top_up(uang, e_jumlah.get())
-            self._check_alert()
-            self.after(600, self._show_top_up)
-
-        self._btn(inner, "Top Up Sekarang", do)
-        self._btn(inner, "← Kembali", self._show_dashboard,
-                  color="#374151", hover="#1F2937")
-
-    # ─── MEMBER ──────────────────────────────────────────────────────────
-
-    def _show_member(self):
-        self._clear_frame()
-        main = ctk.CTkScrollableFrame(self, fg_color=BG_DARK)
-        main.pack(expand=True, fill="both", padx=24, pady=24)
-
-        self._header(main, "Membership", "Nikmati keuntungan lebih")
-
-        # Status card
-        status_color = SUCCESS if member else BG_CARD
-        status_card = ctk.CTkFrame(main, fg_color=status_color, corner_radius=14,
-                                   border_width=1,
-                                   border_color=SUCCESS if member else BORDER)
-        status_card.pack(fill="x", pady=(0, 16))
-        inner_s = ctk.CTkFrame(status_card, fg_color="transparent")
-        inner_s.pack(padx=20, pady=16)
-
-        if member:
-            ctk.CTkLabel(inner_s, text="✦ MEMBER AKTIF", font=("Helvetica", 16, "bold"),
-                         text_color="#FFFFFF").pack()
-            ctk.CTkLabel(inner_s, text="Anda menikmati diskon 30% setiap perjalanan",
-                         font=("Helvetica", 12), text_color="#D1FAE5").pack(pady=(4, 0))
-        else:
-            ctk.CTkLabel(inner_s, text="Belum jadi member",
-                         font=("Helvetica", 15, "bold"),
-                         text_color=TEXT_PRI).pack()
-            ctk.CTkLabel(inner_s, text="Bergabung dan hemat lebih banyak!",
-                         font=("Helvetica", 12), text_color=TEXT_SEC).pack(pady=(4, 0))
-
-        # Benefits
-        card = self._card(main)
-        card.pack(fill="x")
-        inner = ctk.CTkFrame(card, fg_color="transparent")
-        inner.pack(fill="x", padx=20, pady=20)
-
-        ctk.CTkLabel(inner, text="Keuntungan Member", font=("Helvetica", 14, "bold"),
-                     text_color=TEXT_PRI).pack(anchor="w", pady=(0, 10))
-
-        benefits = [
-            ("🎫", "Diskon 30% semua rute"),
-            ("⚡", "Akses prioritas layanan"),
-            ("💰", "Hemat lebih banyak setiap perjalanan"),
-        ]
-        for icon, text in benefits:
-            row = ctk.CTkFrame(inner, fg_color=BG_FIELD, corner_radius=10)
-            row.pack(fill="x", pady=3)
-            ri = ctk.CTkFrame(row, fg_color="transparent")
-            ri.pack(fill="x", padx=14, pady=10)
-            ctk.CTkLabel(ri, text=icon, font=("Helvetica", 16)).pack(side="left",
-                         padx=(0, 10))
-            ctk.CTkLabel(ri, text=text, font=("Helvetica", 12),
-                         text_color=TEXT_PRI).pack(side="left")
-
-        self._divider(inner)
-
-        if not member:
-            # Price info
-            price_row = ctk.CTkFrame(inner, fg_color="transparent")
-            price_row.pack(fill="x", pady=(0, 6))
-            ctk.CTkLabel(price_row, text="Biaya bergabung:",
-                         font=("Helvetica", 12), text_color=TEXT_SEC).pack(side="left")
-            ctk.CTkLabel(price_row, text="Rp 20,000",
-                         font=("Helvetica", 14, "bold"),
-                         text_color=ACCENT).pack(side="right")
-
-            def do():
-                if pilih_member():
-                    self._check_alert()
-                    self.after(600, self._show_member)
-                else:
-                    self._check_alert()
-
-            self._btn(inner, "Bergabung Sekarang  •  Rp 20,000", do, color=SUCCESS,
-                      hover="#059669")
-        
-        self._btn(inner, "← Kembali", self._show_dashboard,
-                  color="#374151", hover="#1F2937")
-        self._check_alert()
-
-    # ─── LOGOUT ──────────────────────────────────────────────────────────
-
-    def _do_logout(self):
-        do_logout()
-        self._check_alert()
-        self.after(600, self._show_landing)
-
+# ─────────────────────────────────────────────
+#  ENTRY POINT
+# ─────────────────────────────────────────────
 
 if __name__ == "__main__":
     app = CommuterApp()
