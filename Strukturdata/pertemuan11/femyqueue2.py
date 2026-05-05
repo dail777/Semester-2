@@ -1,7 +1,7 @@
 import queue
 import streamlit as st
 import gtts
-import playsound
+
 
 #antrian klinik
 st.title("Antrian Klinik")
@@ -24,7 +24,6 @@ if st.button("Panggil Antrian"):
         pasien_dipanggil = st.session_state.antrian.get()
         tts = gtts.gTTS(pasien_dipanggil, lang='id')
         tts.save("panggil_antrian.mp3")
-        playsound.playsound("panggil_antrian.mp3")
         st.info(f"Pasien yang dipanggil: {pasien_dipanggil}")
     else:
         st.warning("Antrian kosong. Tidak ada pasien yang dapat dipanggil.")
