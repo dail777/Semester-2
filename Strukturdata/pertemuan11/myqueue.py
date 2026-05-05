@@ -9,6 +9,7 @@ class myqueue :
         self.tail = None
     def isEmpty(self):
         return self.head == None
+    #membuat method enqueue, dequeue, peek, printQueue
     def enqueue(self, data):
         newNode = node(data)
         if self.isEmpty():
