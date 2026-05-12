@@ -1,0 +1,7 @@
+tupleKu = ("A", "B", "C", "D", "E")
+print(tupleKu)
+print(tupleKu[0])
+print(tupleKu[1])
+print(tupleKu[2])
+print(tupleKu[3])
+print(tupleKu[4])
