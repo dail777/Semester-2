@@ -385,3 +385,8 @@ class SistemAntrian:
         self.db.reset_orders()
         self.reload_data()
         return True
+
+    def reset_chats(self) -> bool:
+        self.db.reset_chats()
+        self.reload_data()
+        return True

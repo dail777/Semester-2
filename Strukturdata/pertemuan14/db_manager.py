@@ -251,3 +251,7 @@ class DatabaseManager:
             user["location_x"] = 50
             user["location_y"] = 50
         self.save()
+
+    def reset_chats(self) -> None:
+        self.data["chats"] = []
+        self.save()

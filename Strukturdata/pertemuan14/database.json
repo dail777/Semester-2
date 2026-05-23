@@ -30,6 +30,22 @@
             "saldo": 390000,
             "location_x": 48,
             "location_y": 49
+        },
+        {
+            "username": "user1",
+            "password": "x",
+            "name": "User1",
+            "saldo": 0,
+            "location_x": 50,
+            "location_y": 50
+        },
+        {
+            "username": "user2",
+            "password": "x",
+            "name": "User2",
+            "saldo": 0,
+            "location_x": 50,
+            "location_y": 50
         }
     ],
     "categories": [
@@ -142,50 +158,34 @@
     "chats": [
         {
             "chat_id": 1,
-            "username": "dail",
-            "created_at": "2026-05-23 21:56:49",
-            "updated_at": "2026-05-23 22:28:46",
+            "username": "user1",
+            "created_at": "2026-05-23 22:34:25",
+            "updated_at": "2026-05-23 22:34:25",
             "status": "Menunggu",
             "messages": [
                 {
-                    "sender": "dail",
-                    "text": "halo admin",
-                    "timestamp": "2026-05-23 21:56:49"
+                    "sender": "user1",
+                    "text": "hello from 1",
+                    "timestamp": "2026-05-23 22:34:25"
                 },
                 {
-                    "sender": "dail",
-                    "text": "halo admin",
-                    "timestamp": "2026-05-23 21:56:56"
-                },
+                    "sender": "user1",
+                    "text": "another 1",
+                    "timestamp": "2026-05-23 22:34:25"
+                }
+            ]
+        },
+        {
+            "chat_id": 2,
+            "username": "user2",
+            "created_at": "2026-05-23 22:34:25",
+            "updated_at": "2026-05-23 22:34:25",
+            "status": "Menunggu",
+            "messages": [
                 {
-                    "sender": "admin",
-                    "text": "halo",
-                    "timestamp": "2026-05-23 21:57:23"
-                },
-                {
-                    "sender": "dail",
-                    "text": "halo admin",
-                    "timestamp": "2026-05-23 22:18:41"
-                },
-                {
-                    "sender": "dail",
-                    "text": "halo",
-                    "timestamp": "2026-05-23 22:22:43"
-                },
-                {
-                    "sender": "dail",
-                    "text": "halo",
-                    "timestamp": "2026-05-23 22:23:32"
-                },
-                {
-                    "sender": "dail",
-                    "text": "halo",
-                    "timestamp": "2026-05-23 22:27:50"
-                },
-                {
-                    "sender": "dail",
-                    "text": "hai ga di respon min",
-                    "timestamp": "2026-05-23 22:28:46"
+                    "sender": "user2",
+                    "text": "hello from 2",
+                    "timestamp": "2026-05-23 22:34:25"
                 }
             ]
         }

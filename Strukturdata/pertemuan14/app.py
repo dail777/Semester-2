@@ -331,6 +331,7 @@ def render_user_history():
 def render_user_chat():
     username = st.session_state.username
     st.markdown("### 💬 Chat dengan Admin")
+    st.session_state.sistem.reload_data()
     if st.button("🔄 Segarkan Chat", use_container_width=True, key="user_refresh_chat"):
         st.session_state.sistem.reload_data()
         st.success("Chat berhasil disegarkan.")
@@ -513,8 +514,21 @@ def render_admin_reset():
             st.error("Centang konfirmasi sebelum melakukan reset.")
         elif st.session_state.sistem.reset_history():
             st.success("Semua riwayat dan posisi pembelian telah direset. Akun tetap tersimpan.")
+
     st.markdown("---")
-    st.markdown("Gunakan fitur ini bila Anda ingin mulai dari ulang tanpa kehilangan data akun atau kategori.")
+    st.markdown("### 🧹 Hapus Riwayat Chat")
+    confirm_chat_reset = st.checkbox(
+        "Saya yakin ingin menghapus semua riwayat chat pengguna",
+        key="confirm_reset_chat"
+    )
+    if st.button("Hapus Semua Chat", use_container_width=True, key="admin_reset_chat"):
+        if not confirm_chat_reset:
+            st.error("Centang konfirmasi sebelum menghapus chat.")
+        elif st.session_state.sistem.reset_chats():
+            st.success("Semua riwayat chat telah dihapus.")
+
+    st.markdown("---")
+    st.markdown("Gunakan fitur ini bila Anda ingin mengosongkan semua riwayat chat tanpa mempengaruhi data pembelian atau akun.")
 
 
 def render_location_visualization():
@@ -569,6 +583,7 @@ def render_admin_purchase_graph():
 
 def render_admin_chat():
     st.markdown("### 💬 Chat Pengguna")
+    st.session_state.sistem.reload_data()
     if st.button("🔄 Segarkan Chat", use_container_width=True, key="admin_refresh_chat"):
         st.session_state.sistem.reload_data()
         st.success("Chat berhasil disegarkan.")
