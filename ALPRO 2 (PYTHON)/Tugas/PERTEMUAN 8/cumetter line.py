@@ -40,42 +40,52 @@ def sync_data():
 #sistem top up dan member
 #wawan
 def top_up(saldo_saat_ini):
-    try:
-        jumlah = int(input("Masukkan jumlah top up: "))
-        set_alert(f"✅ Top up berhasil! Saldo {jumlah} telah ditambahkan.")
-        hasil = saldo_saat_ini + jumlah
-        sync_data()
-        return hasil
-    except:
-        set_alert("⚠️ Input top up tidak valid!")
-        return saldo_saat_ini
-
+    jumlah = int(input("Masukkan jumlah top up: "))
+    return saldo_saat_ini + jumlah
 
 def pilih_member():
-    global uang, member
-    clear()
-
-    harga_member = 20000
-    garis20()
-    print("Beli member")
-    print("1. Ya")
-    print("2. Tidak")
-    garis20()
-
-    opsi = input("Pilih (1-2): ")
-
-    if opsi != "1":
-        set_alert("⚠️ Pembelian dibatalkan.")
+    global uang, member # Ambil akses ke variabel global
+    
+    harga_member = 0
+    print("\nPilih Member:\n1. Beli (20rb)")
+    opsi = int(input("Pilih (1): "))
+    
+    if opsi == 1:
+        harga_member = 20000
+    else:
+        print("Pilihan tidak tersedia.")
         return
 
+    # Cek apakah uang cukup untuk beli member
     if uang >= harga_member:
         uang -= harga_member
         member = True
-        set_alert(f"✅ Berhasil join member! Sisa saldo: {uang}")
-        sync_data()
+        print(f"Berhasil join! Sisa saldo: {uang}")
     else:
-        set_alert(f"⚠️ Saldo tidak cukup. Harga: {harga_member}, Saldo: {uang}")
+        print(f"Saldo tidak cukup. Harga member: {harga_member}, Saldo kamu: {uang}")
 
+def menu_top_up():
+    global uang # WAJIB agar bisa update nilai uang di baris 42
+    
+    print(f"""
+    ===================
+    SALDO : {uang}
+    MEMBER: {"Aktif" if member else "Tidak Aktif"}
+    ===================
+    1. Isi Saldo
+    2. Join Member
+    """)
+
+    pilih = int(input("Pilih menu: "))
+
+    if pilih == 1:
+        uang = top_up(uang) # Update saldo global
+        menu_top_up()       # Panggil lagi biar menu terupdate
+    elif pilih == 2:
+        pilih_member()
+        menu_top_up()
+    else:
+        print("Menu tidak valid.")
 
 def menu_top_up():
     global uang
