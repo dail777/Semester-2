@@ -86,7 +86,7 @@ st.markdown("""
         padding: 18px;
         border-radius: 20px;
         max-width: 72%;
-        line-height: 1.5;
+        line-height: 1.4;
         white-space: pre-wrap;
         word-wrap: break-word;
         margin-bottom: 8px;
@@ -102,6 +102,32 @@ st.markdown("""
         color: white;
         margin-right: auto;
         text-align: left;
+    }
+    .chat-bubble strong {
+        display: block;
+        margin-bottom: 4px;
+        font-size: 0.95rem;
+    }
+    .chat-bubble p {
+        margin: 0;
+        padding: 0;
+    }
+    .chat-meta {
+        font-size: 0.78rem;
+        color: #ddd;
+        margin-top: 4px;
+    }
+    .chat-notification {
+        padding: 18px;
+        border-radius: 12px;
+        background: rgba(0, 217, 255, 0.12);
+        border: 1px solid rgba(0, 217, 255, 0.25);
+        margin-bottom: 16px;
+    }
+    .chat-notification strong {
+        display: block;
+        margin-bottom: 4px;
+        color: #00D9FF;
     }
     .chat-bubble p {
         margin: 5px 0 0;
@@ -226,11 +252,25 @@ def render_user_dashboard():
 
     stats = st.session_state.sistem.get_statistik()
     order_history = st.session_state.sistem.get_user_purchase_history(username)
-    
+    chat = st.session_state.sistem.get_user_chat(username)
+    chat_notification = None
+    if chat:
+        last_message = chat.get('messages', [])[-1] if chat.get('messages') else None
+        if chat.get('status') == 'Menunggu':
+            position = st.session_state.sistem.get_chat_queue_position(chat['chat_id'])
+            chat_notification = f"Chat Anda sedang menunggu respon admin." + (f" Antrian ke {position}." if position else "")
+        elif last_message and last_message.get('sender') == 'admin':
+            chat_notification = "Admin sudah membalas chat Anda. Cek halaman Chat Admin untuk melihat pesan terbaru."
+        else:
+            chat_notification = "Anda sedang menunggu balasan admin pada chat terakhir Anda."
+
     col1, col2, col3 = st.columns(3)
     col1.metric("💰 Saldo", f"Rp {user['saldo']:,}")
     col2.metric("🎫 Tiket Dibeli", len(order_history))
     col3.metric("📍 Posisi Anda", f"({user['location_x']}, {user['location_y']})")
+
+    if chat_notification:
+        st.markdown(f"<div class='chat-notification'><strong>Notifikasi Chat</strong><span>{chat_notification}</span></div>", unsafe_allow_html=True)
 
     st.markdown("---")
     st.markdown("### 🛍️ Riwayat Pembelian Tiket")
