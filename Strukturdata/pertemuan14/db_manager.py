@@ -180,7 +180,7 @@ class DatabaseManager:
         if not order:
             return False
         for key, value in fields.items():
-            if key in order:
+            if key in order or key in ["cancelled_by", "cancelled_time"]:
                 order[key] = value
         self.save()
         return True
@@ -195,11 +195,29 @@ class DatabaseManager:
         return sorted(orders, key=lambda x: x["purchase_time"])
     
     def get_purchase_stats_by_date(self) -> List[Dict[str, Any]]:
-        counts: Dict[str, int] = {}
+        counts: Dict[str, Dict[str, int]] = {}
         for order in self.data["orders"]:
             date = order["purchase_time"].split(" ")[0]
-            counts[date] = counts.get(date, 0) + 1
-        return [{"date": d, "count": counts[d]} for d in sorted(counts.keys())]
+            if date not in counts:
+                counts[date] = {"count": 0, "cancelled": 0, "completed": 0, "waiting": 0}
+            counts[date]["count"] += 1
+            status = order.get("status", "Menunggu")
+            if status == "Dibatalkan":
+                counts[date]["cancelled"] += 1
+            elif status == "Selesai":
+                counts[date]["completed"] += 1
+            elif status == "Menunggu":
+                counts[date]["waiting"] += 1
+        return [
+            {
+                "date": d,
+                "count": counts[d]["count"],
+                "cancelled": counts[d]["cancelled"],
+                "completed": counts[d]["completed"],
+                "waiting": counts[d]["waiting"],
+            }
+            for d in sorted(counts.keys())
+        ]
     
     def get_all_users(self) -> List[Dict[str, Any]]:
         return self.data["users"]

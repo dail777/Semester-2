@@ -129,6 +129,10 @@ st.markdown("""
         margin-bottom: 4px;
         color: #00D9FF;
     }
+    .info-box-cancelled {
+        border-left: 5px solid #FF4D4D;
+        background: rgba(255, 77, 77, 0.08);
+    }
     .chat-bubble p {
         margin: 5px 0 0;
         padding: 0;
@@ -242,6 +246,15 @@ def reset_all_chats() -> bool:
     return False
 
 
+def reject_order(ticket_number: int):
+    result = st.session_state.sistem.reject_order(ticket_number, st.session_state.username or "admin")
+    if result:
+        st.success(f"Pesanan tiket {ticket_number} berhasil ditolak.")
+        st.session_state.sistem.reload_data()
+    else:
+        st.error("Gagal menolak pesanan. Pesanan mungkin sudah diproses atau tidak ada.")
+
+
 def render_user_dashboard():
     username = st.session_state.username
     user = st.session_state.sistem.get_user_info(username)
@@ -278,15 +291,16 @@ def render_user_dashboard():
         for order in reversed(order_history[-10:]):
             queue_info = f"<p><b>Antrian ke:</b> {order['queue_position']}</p>" if order.get('queue_position') else ""
             status_label = order.get('status_label', order['status'])
+            order_class = "info-box info-box-cancelled" if order['status'] == 'Dibatalkan' else "info-box"
             st.markdown(f"""
-            <div class="info-box">
+            <div class=\"{order_class}\">
             <h4>🎫 {order['ticket_number']} - {order['category']}</h4>
             <p><b>Harga:</b> Rp {order['price']:,}</p>
             <p><b>Status:</b> {status_label}</p>
             {queue_info}
             <p><b>Waktu Pembelian:</b> {order['purchase_time']}</p>
             <p><b>Lokasi:</b> ({order['lokasi_x']}, {order['lokasi_y']})</p>
-            """ + (f"<p><b>Served by:</b> {order['served_by']} pada {order['served_time']}</p>" if order['status'] == 'Selesai' else "") + "</div>", unsafe_allow_html=True)
+            """ + (f"<p><b>Served by:</b> {order['served_by']} pada {order['served_time']}</p>" if order['status'] == 'Selesai' else "") + (f"<p><b>Ditolak oleh:</b> {order.get('cancelled_by', 'admin')} pada {order.get('cancelled_time', '-')}</p>" if order['status'] == 'Dibatalkan' else "") + "</div>", unsafe_allow_html=True)
     else:
         st.info("Belum ada pembelian tiket.")
 
@@ -368,8 +382,9 @@ def render_user_history():
         for order in reversed(history[-10:]):
             queue_info = f"<p><b>Antrian ke:</b> {order['queue_position']}</p>" if order.get('queue_position') else ""
             status_label = order.get('status_label', order['status'])
+            order_class = "info-box info-box-cancelled" if order['status'] == 'Dibatalkan' else "info-box"
             st.markdown(f"""
-            <div class="info-box">
+            <div class=\"{order_class}\">
             <h4>🎫 {order['ticket_number']} - {order['category']}</h4>
             <p><b>Harga:</b> Rp {order['price']:,}</p>
             <p><b>Status:</b> {status_label}</p>
@@ -377,6 +392,7 @@ def render_user_history():
             <p><b>Lokasi:</b> ({order['lokasi_x']}, {order['lokasi_y']})</p>
             <p><b>Waktu:</b> {order['purchase_time']}</p>
             {f"<p><b>Served by:</b> {order['served_by']} pada {order['served_time']}</p>" if order['status'] == 'Selesai' else ''}
+            {f"<p><b>Ditolak oleh:</b> {order.get('cancelled_by', 'admin')} pada {order.get('cancelled_time', '-')}</p>" if order['status'] == 'Dibatalkan' else ''}
             </div>
             """, unsafe_allow_html=True)
     else:
@@ -450,13 +466,14 @@ def render_admin_dashboard():
     pending_orders = st.session_state.sistem.get_pending_orders()
     order_history = st.session_state.sistem.get_admin_purchase_history()
     pending_chats = st.session_state.sistem.get_pending_chat_count()
+    cancelled_orders = [order for order in order_history if order['status'] == 'Dibatalkan']
 
     col1, col2, col3, col4, col5 = st.columns(5)
     col1.metric("🕒 Pesanan Menunggu", stats['pending'])
     col2.metric("✅ Pesanan Selesai", stats['completed'])
     col3.metric("💰 Total Pendapatan", f"Rp {stats['revenue']:,}")
     col4.metric("📈 Selesai", f"{stats['completion_rate']:.1f}%")
-    col5.metric("💬 Chat Tertunda", pending_chats)
+    col5.metric("❌ Pesanan Dibatalkan", stats.get('cancelled', 0))
     
     st.markdown("---")
     st.markdown("### 📋 Riwayat Pembelian Tiket")
@@ -464,8 +481,9 @@ def render_admin_dashboard():
         for order in reversed(order_history[-10:]):
             queue_info = f"<p><b>Antrian ke:</b> {order['queue_position']}</p>" if order.get('queue_position') else ""
             status_label = order.get('status_label', order['status'])
+            order_class = "info-box info-box-cancelled" if order['status'] == 'Dibatalkan' else "info-box"
             st.markdown(f"""
-            <div class="info-box">
+            <div class=\"{order_class}\">
             <h4>🎫 {order['ticket_number']} - {order['category']} ({status_label})</h4>
             <p><b>User:</b> {order['username']} - {order['name']}</p>
             <p><b>Harga:</b> Rp {order['price']:,}</p>
@@ -478,6 +496,21 @@ def render_admin_dashboard():
     else:
         st.info("Belum ada pesan tiket.")
 
+    if cancelled_orders:
+        st.markdown("---")
+        st.markdown("### ❌ Riwayat Pesanan Dibatalkan")
+        for order in reversed(cancelled_orders[-10:]):
+            st.markdown(f"""
+            <div class=\"info-box info-box-cancelled\">
+            <h4>🎫 {order['ticket_number']} - {order['category']} (Dibatalkan)</h4>
+            <p><b>User:</b> {order['username']} - {order['name']}</p>
+            <p><b>Harga:</b> Rp {order['price']:,}</p>
+            <p><b>Lokasi:</b> ({order['lokasi_x']}, {order['lokasi_y']})</p>
+            <p><b>Waktu Pembelian:</b> {order['purchase_time']}</p>
+            <p><b>Ditolak oleh:</b> {order.get('cancelled_by', 'admin')} pada {order.get('cancelled_time', '-')}</p>
+            </div>
+            """, unsafe_allow_html=True)
+
 
 def render_admin_serve():
     st.markdown("### 🎫 Melayani Pesanan")
@@ -489,10 +522,20 @@ def render_admin_serve():
         st.write(f"Kategori: {next_order.category}")
         st.write(f"Harga: Rp {next_order.price:,}")
         st.write(f"Lokasi: ({next_order.lokasi_x}, {next_order.lokasi_y})")
-        if st.button("✅ Layani Pesanan Ini", use_container_width=True):
-            result = st.session_state.sistem.serve_next_order(st.session_state.username)
-            if result:
-                st.success(f"Pesanan tiket {result.ticket_number} berhasil dilayani.")
+        col1, col2 = st.columns(2)
+        with col1:
+            if st.button("✅ Layani Pesanan Ini", use_container_width=True, key="serve_next_order"):
+                result = st.session_state.sistem.serve_next_order(st.session_state.username)
+                if result:
+                    st.success(f"Pesanan tiket {result.ticket_number} berhasil dilayani.")
+        with col2:
+            if st.button("❌ Tolak Pesanan Ini", use_container_width=True, key="reject_next_order"):
+                result = st.session_state.sistem.reject_order(next_order.ticket_number, st.session_state.username)
+                if result:
+                    st.success(f"Pesanan tiket {next_order.ticket_number} berhasil ditolak.")
+                    st.session_state.sistem.reload_data()
+                else:
+                    st.error("Gagal menolak pesanan. Pesanan mungkin sudah diproses atau tidak ada.")
     else:
         st.info("Tidak ada pesanan dalam antrean.")
 
@@ -501,7 +544,17 @@ def render_admin_serve():
     if pending:
         st.markdown("### 📍 Antrian Tiket (5 Teratas)")
         for idx, order in enumerate(pending[:5], 1):
-            st.write(f"{idx}. {order.ticket_number} - {order.name} ({order.category}) - {order.status} - Antrian ke: {idx}")
+            col1, col2 = st.columns([5, 1])
+            with col1:
+                st.write(f"{idx}. {order.ticket_number} - {order.name} ({order.category}) - {order.status} - Antrian ke: {idx}")
+            with col2:
+                if st.button("Tolak", key=f"reject_order_{order.ticket_number}", use_container_width=True):
+                    result = st.session_state.sistem.reject_order(order.ticket_number, st.session_state.username)
+                    if result:
+                        st.success(f"Pesanan tiket {order.ticket_number} berhasil ditolak.")
+                        st.session_state.sistem.reload_data()
+                    else:
+                        st.error("Gagal menolak pesanan.")
     else:
         st.info("Tidak ada antrian saat ini.")
 
@@ -628,9 +681,39 @@ def render_admin_purchase_graph():
     stats = st.session_state.sistem.get_purchase_statistics_by_date()
     if stats:
         dates = [item['date'] for item in stats]
-        counts = [item['count'] for item in stats]
-        fig = go.Figure(go.Bar(x=dates, y=counts, marker_color='#00D9FF'))
-        fig.update_layout(title='Jumlah Pembelian per Tanggal', xaxis_title='Tanggal', yaxis_title='Jumlah Pembelian', template='plotly_dark', height=500)
+        totals = [item['count'] for item in stats]
+        cancelled = [item.get('cancelled', 0) for item in stats]
+        completed = [item.get('completed', 0) for item in stats]
+        fig = go.Figure()
+        fig.add_trace(go.Scatter(
+            x=dates,
+            y=totals,
+            mode='lines+markers',
+            name='Total Pesanan',
+            line=dict(color='#00D9FF', width=3)
+        ))
+        fig.add_trace(go.Scatter(
+            x=dates,
+            y=cancelled,
+            mode='lines+markers',
+            name='Pesanan Dibatalkan',
+            line=dict(color='#FF4D4D', width=3, dash='dash')
+        ))
+        fig.add_trace(go.Scatter(
+            x=dates,
+            y=completed,
+            mode='lines+markers',
+            name='Pesanan Selesai',
+            line=dict(color='#00FF7F', width=3, dash='dot')
+        ))
+        fig.update_layout(
+            title='Jumlah Pesanan per Tanggal',
+            xaxis_title='Tanggal',
+            yaxis_title='Jumlah Pesanan',
+            template='plotly_dark',
+            height=500,
+            legend=dict(bgcolor='rgba(0,0,0,0.4)')
+        )
         st.plotly_chart(fig, use_container_width=True)
     else:
         st.info("Belum ada pembelian untuk divisualisasikan.")

@@ -288,7 +288,16 @@ class SistemAntrian:
         order.served_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         self.db.update_order(order.ticket_number, status="Selesai", served_by=admin_username, served_time=order.served_time)
         return order
-    
+
+    def reject_order(self, ticket_number: int, admin_username: str = "admin") -> Optional[TiketOrder]:
+        order = self.db.get_order(ticket_number)
+        if not order or order.get("status") != "Menunggu":
+            return None
+        now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        self.db.update_order(ticket_number, status="Dibatalkan", cancelled_by=admin_username, cancelled_time=now)
+        self.reload_data()
+        return self.db.get_order(ticket_number)
+
     def get_order_history(self, username: Optional[str] = None) -> List[Dict[str, Any]]:
         self.reload_data()
         username = self._normalize_username(username) if username is not None else None
@@ -300,8 +309,18 @@ class SistemAntrian:
     
     def get_purchase_statistics_by_date(self) -> List[Dict[str, Any]]:
         self.reload_data()
-        return self.db.get_purchase_stats_by_date()
-    
+        stats = self.db.get_purchase_stats_by_date()
+        return [
+            {
+                "date": item["date"],
+                "count": item["count"],
+                "cancelled": item.get("cancelled", 0),
+                "completed": item.get("completed", 0),
+                "waiting": item.get("waiting", 0),
+            }
+            for item in stats
+        ]
+
     def get_user_purchase_history(self, username: str) -> List[Dict[str, Any]]:
         self.reload_data()
         username = self._normalize_username(username)
@@ -358,13 +377,15 @@ class SistemAntrian:
         total_orders = len(self.db.get_all_orders())
         waiting = len(self.db.get_orders(status="Menunggu"))
         completed = len(self.db.get_orders(status="Selesai"))
-        total_revenue = sum(order["price"] for order in self.db.get_all_orders())
+        cancelled = len(self.db.get_orders(status="Dibatalkan"))
+        total_revenue = sum(order["price"] for order in self.db.get_all_orders() if order["status"] != "Dibatalkan")
         percentage_completed = (completed / total_orders * 100) if total_orders else 0
         return {
             "total_orders": total_orders,
             "total_pembeli": total_orders,
             "menunggu": waiting,
             "selesai": completed,
+            "cancelled": cancelled,
             "pending": waiting,
             "completed": completed,
             "revenue": total_revenue,
