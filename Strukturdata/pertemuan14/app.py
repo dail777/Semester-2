@@ -78,14 +78,17 @@ st.markdown("""
     .chat-container {
         display: flex;
         flex-direction: column;
-        gap: 10px;
+        gap: 12px;
         margin-top: 10px;
     }
     .chat-bubble {
-        padding: 15px;
-        border-radius: 18px;
-        max-width: 80%;
-        line-height: 1.4;
+        padding: 18px;
+        border-radius: 20px;
+        max-width: 72%;
+        line-height: 1.5;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        margin-bottom: 8px;
     }
     .chat-user {
         background: #0099ff;
@@ -94,15 +97,20 @@ st.markdown("""
         text-align: right;
     }
     .chat-admin {
-        background: rgba(255, 255, 255, 0.12);
+        background: rgba(255, 255, 255, 0.18);
         color: white;
         margin-right: auto;
         text-align: left;
     }
+    .chat-user p,
+    .chat-admin p {
+        margin: 5px 0 0;
+        padding: 0;
+    }
     .chat-meta {
         font-size: 0.8rem;
         color: #bbb;
-        margin-top: 4px;
+        margin-top: 6px;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -170,6 +178,28 @@ def logout():
     st.session_state.username = None
     st.session_state.full_name = None
     st.success("Anda telah logout.")
+
+
+def handle_user_chat_submit(username):
+    message = st.session_state.user_chat_input.strip()
+    if message:
+        st.session_state.sistem.send_user_message(username, message)
+        st.session_state.sistem.reload_data()
+        st.session_state.user_chat_submit_status = "sent"
+        st.session_state.user_chat_input = ""
+    else:
+        st.session_state.user_chat_submit_status = "error"
+
+
+def handle_admin_chat_submit(chat_id):
+    reply = st.session_state.admin_chat_reply.strip()
+    if reply:
+        st.session_state.sistem.send_admin_message(chat_id, reply)
+        st.session_state.sistem.reload_data()
+        st.session_state.admin_chat_submit_status = "sent"
+        st.session_state.admin_chat_reply = ""
+    else:
+        st.session_state.admin_chat_submit_status = "error"
 
 
 def render_user_dashboard():
@@ -305,14 +335,25 @@ def render_user_chat():
     if st.button("🔄 Segarkan Chat", use_container_width=True, key="user_refresh_chat"):
         st.session_state.sistem.reload_data()
         st.success("Chat berhasil disegarkan.")
+
+    if "user_chat_input" not in st.session_state:
+        st.session_state.user_chat_input = ""
+    if "user_chat_submit_status" not in st.session_state:
+        st.session_state.user_chat_submit_status = None
+
+    if st.session_state.user_chat_submit_status == "sent":
+        st.success("Pesan terkirim ke admin.")
+        st.session_state.user_chat_submit_status = None
+    elif st.session_state.user_chat_submit_status == "error":
+        st.error("Masukkan pesan terlebih dahulu.")
+        st.session_state.user_chat_submit_status = None
+
     chat = st.session_state.sistem.get_user_chat(username)
     if chat:
         status = chat.get('status', 'Menunggu')
         position = st.session_state.sistem.get_chat_queue_position(chat['chat_id'])
         if status == 'Menunggu' and position is not None:
             st.info(f"Chat Anda saat ini berada di antrian ke {position} untuk direspon oleh admin.")
-        elif status != 'Menunggu':
-            st.success("Admin telah merespon chat Anda.")
         st.markdown("<div class='chat-container'>", unsafe_allow_html=True)
         for message in chat.get('messages', []):
             bubble_class = 'chat-user' if message['sender'] == username else 'chat-admin'
@@ -322,15 +363,8 @@ def render_user_chat():
     else:
         st.info("Belum ada chat dengan admin. Kirim pesan pertama untuk memulai.")
 
-    message = st.text_area("Tulis pesan untuk admin", key="user_chat_input", height=140)
-    if st.button("Kirim Pesan", use_container_width=True, key="user_send_chat"):
-        if message.strip():
-            st.session_state.sistem.send_user_message(username, message)
-            st.session_state.sistem.reload_data()
-            st.success("Pesan terkirim ke admin.")
-            st.session_state.user_chat_input = ""
-        else:
-            st.error("Masukkan pesan terlebih dahulu.")
+    st.text_area("Tulis pesan untuk admin", key="user_chat_input", height=140)
+    st.button("Kirim Pesan", use_container_width=True, key="user_send_chat", on_click=handle_user_chat_submit, args=(username,))
 
 
 def render_user_account():
@@ -536,6 +570,22 @@ def render_admin_purchase_graph():
 
 def render_admin_chat():
     st.markdown("### 💬 Chat Pengguna")
+    if st.button("🔄 Segarkan Chat", use_container_width=True, key="admin_refresh_chat"):
+        st.session_state.sistem.reload_data()
+        st.success("Chat berhasil disegarkan.")
+
+    if "admin_chat_reply" not in st.session_state:
+        st.session_state.admin_chat_reply = ""
+    if "admin_chat_submit_status" not in st.session_state:
+        st.session_state.admin_chat_submit_status = None
+
+    if st.session_state.admin_chat_submit_status == "sent":
+        st.success("Balasan terkirim ke pengguna.")
+        st.session_state.admin_chat_submit_status = None
+    elif st.session_state.admin_chat_submit_status == "error":
+        st.error("Masukkan pesan sebelum mengirim.")
+        st.session_state.admin_chat_submit_status = None
+
     pending_chats = st.session_state.sistem.get_pending_chat_count()
     st.info(f"Ada {pending_chats} chat yang menunggu respon admin.")
     chats = st.session_state.sistem.get_admin_chats()
@@ -567,15 +617,8 @@ def render_admin_chat():
                 sender_label = 'User' if message['sender'] == chat['username'] else 'Admin'
                 st.markdown(f"<div class='chat-bubble {bubble_class}'><strong>{sender_label}</strong><p>{message['text']}</p><div class='chat-meta'>{message['timestamp']}</div></div>", unsafe_allow_html=True)
             st.markdown("</div>", unsafe_allow_html=True)
-            admin_reply = st.text_area("Balas chat ini", key="admin_chat_reply", height=140)
-            if st.button("Kirim Balasan", use_container_width=True, key="admin_send_reply"):
-                if admin_reply.strip():
-                    st.session_state.sistem.send_admin_message(chat['chat_id'], admin_reply)
-                    st.session_state.sistem.reload_data()
-                    st.success("Balasan terkirim ke pengguna.")
-                    st.session_state.admin_chat_reply = ""
-                else:
-                    st.error("Masukkan pesan sebelum mengirim.")
+            st.text_area("Balas chat ini", key="admin_chat_reply", height=140)
+            st.button("Kirim Balasan", use_container_width=True, key="admin_send_reply", on_click=handle_admin_chat_submit, args=(chat['chat_id'],))
         else:
             st.info("Chat tidak ditemukan.")
 
