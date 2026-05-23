@@ -201,6 +201,16 @@ def handle_admin_chat_submit(chat_id):
         st.session_state.admin_chat_submit_status = "error"
 
 
+def reset_all_chats() -> bool:
+    if hasattr(st.session_state.sistem, "reset_chats"):
+        return st.session_state.sistem.reset_chats()
+    if hasattr(st.session_state.sistem, "db") and hasattr(st.session_state.sistem.db, "reset_chats"):
+        st.session_state.sistem.db.reset_chats()
+        st.session_state.sistem.reload_data()
+        return True
+    return False
+
+
 def render_user_dashboard():
     username = st.session_state.username
     user = st.session_state.sistem.get_user_info(username)
@@ -524,7 +534,7 @@ def render_admin_reset():
     if st.button("Hapus Semua Chat", use_container_width=True, key="admin_reset_chat"):
         if not confirm_chat_reset:
             st.error("Centang konfirmasi sebelum menghapus chat.")
-        elif st.session_state.sistem.reset_chats():
+        elif reset_all_chats():
             st.success("Semua riwayat chat telah dihapus.")
 
     st.markdown("---")
@@ -583,8 +593,11 @@ def render_admin_purchase_graph():
 
 def render_admin_chat():
     st.markdown("### 💬 Chat Pengguna")
+    if "admin_chat_selected" not in st.session_state:
+        st.session_state.admin_chat_selected = None
+
     st.session_state.sistem.reload_data()
-    if st.button("🔄 Segarkan Chat", use_container_width=True, key="admin_refresh_chat"):
+    if st.button("🔄 Segarkan Chat (Global)", use_container_width=True, key="admin_refresh_chat_global"):
         st.session_state.sistem.reload_data()
         st.success("Chat berhasil disegarkan.")
 
@@ -615,22 +628,27 @@ def render_admin_chat():
         user_display_names[chat['chat_id']] = display_name
         chat_ids.append(chat['chat_id'])
 
-    def _chat_label(chat_id):
-        chat = st.session_state.sistem.get_chat_by_id(chat_id)
-        display_name = user_display_names.get(chat_id, chat['username'] if chat else 'Unknown')
-        status = chat['status'] if chat else 'Unknown'
-        return f"{chat_id} - {display_name} ({status})"
-
-    selected_id = st.selectbox("Pilih chat", chat_ids, format_func=_chat_label, key="admin_chat_select")
-    chat = st.session_state.sistem.get_chat_by_id(selected_id)
+    if st.session_state.admin_chat_selected not in chat_ids:
+        st.session_state.admin_chat_selected = chat_ids[0]
 
     col1, col2 = st.columns([1, 2])
     with col1:
         st.markdown("#### Daftar Chat")
         for chat_item in chats:
-            display_name = user_display_names.get(chat_item['chat_id'], chat_item['username'])
-            label = f"{display_name} - {chat_item['status']}"
-            st.write(label)
+            chat_id = chat_item['chat_id']
+            display_name = user_display_names.get(chat_id, chat_item['username'])
+            is_selected = st.session_state.admin_chat_selected == chat_id
+            button_label = f"{display_name} ({chat_item['status']})"
+            if is_selected:
+                st.markdown(
+                    f"<div style='border:2px solid #00D9FF; padding:10px; border-radius:10px; margin-bottom:8px; background: rgba(0, 217, 255, 0.1);'><strong>{button_label}</strong></div>",
+                    unsafe_allow_html=True
+                )
+            else:
+                if st.button(button_label, key=f"admin_chat_btn_{chat_id}"):
+                    st.session_state.admin_chat_selected = chat_id
+
+    chat = st.session_state.sistem.get_chat_by_id(st.session_state.admin_chat_selected)
     with col2:
         if chat:
             display_name = user_display_names.get(chat['chat_id'], chat['username'])
@@ -639,10 +657,13 @@ def render_admin_chat():
                 position = st.session_state.sistem.get_chat_queue_position(chat['chat_id'])
                 if position is not None:
                     st.info(f"Chat ini berada di antrian ke {position} untuk dibalas.")
+            if st.button("🔄 Segarkan Obrolan Ini", use_container_width=True, key="admin_refresh_chat_inner"):
+                st.session_state.sistem.reload_data()
+                st.success("Obrolan berhasil disegarkan.")
             st.markdown("<div class='chat-container'>", unsafe_allow_html=True)
             for message in chat.get('messages', []):
                 bubble_class = 'chat-right' if message['sender'] == 'admin' else 'chat-left'
-                sender_label = 'Admin' if message['sender'] == 'admin' else user_display_names.get(chat['chat_id'], chat['username'])
+                sender_label = 'Admin' if message['sender'] == 'admin' else display_name
                 st.markdown(f"<div class='chat-bubble {bubble_class}'><strong>{sender_label}</strong><p>{message['text']}</p><div class='chat-meta'>{message['timestamp']}</div></div>", unsafe_allow_html=True)
             st.markdown("</div>", unsafe_allow_html=True)
             st.text_area("Balas chat ini", key="admin_chat_reply", height=140)

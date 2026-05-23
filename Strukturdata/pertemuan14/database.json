@@ -158,34 +158,69 @@
     "chats": [
         {
             "chat_id": 1,
-            "username": "user1",
-            "created_at": "2026-05-23 22:34:25",
-            "updated_at": "2026-05-23 22:34:25",
-            "status": "Menunggu",
+            "username": "dail",
+            "created_at": "2026-05-23 22:42:54",
+            "updated_at": "2026-05-23 22:57:30",
+            "status": "Ditanggapi",
             "messages": [
                 {
-                    "sender": "user1",
-                    "text": "hello from 1",
-                    "timestamp": "2026-05-23 22:34:25"
+                    "sender": "dail",
+                    "text": "halo adminku",
+                    "timestamp": "2026-05-23 22:42:54"
                 },
                 {
-                    "sender": "user1",
-                    "text": "another 1",
-                    "timestamp": "2026-05-23 22:34:25"
+                    "sender": "admin",
+                    "text": "hai juga dail",
+                    "timestamp": "2026-05-23 22:43:21"
+                },
+                {
+                    "sender": "dail",
+                    "text": "hai",
+                    "timestamp": "2026-05-23 22:57:10"
+                },
+                {
+                    "sender": "admin",
+                    "text": "hai",
+                    "timestamp": "2026-05-23 22:57:30"
                 }
             ]
         },
         {
             "chat_id": 2,
-            "username": "user2",
-            "created_at": "2026-05-23 22:34:25",
-            "updated_at": "2026-05-23 22:34:25",
-            "status": "Menunggu",
+            "username": "abie",
+            "created_at": "2026-05-23 22:43:08",
+            "updated_at": "2026-05-23 22:57:56",
+            "status": "Ditanggapi",
             "messages": [
                 {
-                    "sender": "user2",
-                    "text": "hello from 2",
-                    "timestamp": "2026-05-23 22:34:25"
+                    "sender": "abie",
+                    "text": "halo adminku 2",
+                    "timestamp": "2026-05-23 22:43:08"
+                },
+                {
+                    "sender": "admin",
+                    "text": "hai juga admin",
+                    "timestamp": "2026-05-23 22:43:30"
+                },
+                {
+                    "sender": "abie",
+                    "text": "hai admin",
+                    "timestamp": "2026-05-23 22:43:48"
+                },
+                {
+                    "sender": "admin",
+                    "text": "oke",
+                    "timestamp": "2026-05-23 22:44:39"
+                },
+                {
+                    "sender": "abie",
+                    "text": "hai",
+                    "timestamp": "2026-05-23 22:57:43"
+                },
+                {
+                    "sender": "admin",
+                    "text": "hai",
+                    "timestamp": "2026-05-23 22:57:56"
                 }
             ]
         }
