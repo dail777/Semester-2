@@ -255,6 +255,34 @@ def reject_order(ticket_number: int):
         st.error("Gagal menolak pesanan. Pesanan mungkin sudah diproses atau tidak ada.")
 
 
+def handle_user_ticket_purchase(username: str, category: str, lokasi_x: int, lokasi_y: int):
+    order = st.session_state.sistem.purchase_ticket(username, category, lokasi_x, lokasi_y)
+    if order:
+        st.session_state.sistem.reload_data()
+        position = st.session_state.sistem.get_queue_position(order.ticket_number)
+        st.session_state.user_purchase_message = f"Tiket berhasil dibeli! Nomor tiket: {order.ticket_number}. Antrian ke: {position}."
+    else:
+        st.session_state.user_purchase_message = "Saldo tidak cukup atau kategori tidak valid."
+
+
+def handle_admin_serve_next_order(ticket_number: int):
+    result = st.session_state.sistem.serve_next_order(st.session_state.username)
+    if result:
+        st.session_state.admin_action_message = f"Pesanan tiket {ticket_number} berhasil dilayani."
+    else:
+        st.session_state.admin_action_message = "Gagal melayani pesanan."
+    st.session_state.sistem.reload_data()
+
+
+def handle_admin_reject_order(ticket_number: int):
+    result = st.session_state.sistem.reject_order(ticket_number, st.session_state.username)
+    if result:
+        st.session_state.admin_action_message = f"Pesanan tiket {ticket_number} berhasil ditolak."
+    else:
+        st.session_state.admin_action_message = "Gagal menolak pesanan."
+    st.session_state.sistem.reload_data()
+
+
 def render_user_dashboard():
     username = st.session_state.username
     user = st.session_state.sistem.get_user_info(username)
@@ -326,17 +354,12 @@ def render_user_buy_ticket():
         st.write(f"Saldo: Rp {user['saldo']:,}")
         st.write(f"Posisi: ({user['location_x']}, {user['location_y']})")
     
-    if st.button("✅ Beli Tiket", use_container_width=True, key="buy_ticket"):
-        order = st.session_state.sistem.purchase_ticket(username, category, lokasi_x, lokasi_y)
-        if order:
-            st.session_state.sistem.reload_data()
-            user = st.session_state.sistem.get_user_info(username)
-            position = st.session_state.sistem.get_queue_position(order.ticket_number)
-            st.success(f"Tiket berhasil dibeli! Nomor tiket: {order.ticket_number}. Antrian ke: {position}")
-            st.write(f"Saldo sekarang: Rp {user['saldo']:,}")
-            st.balloons()
-        else:
-            st.error("Saldo tidak cukup atau kategori tidak valid.")
+    if st.button("✅ Beli Tiket", use_container_width=True, key="buy_ticket", on_click=handle_user_ticket_purchase, args=(username, category, lokasi_x, lokasi_y)):
+        pass
+
+    if st.session_state.get("user_purchase_message"):
+        st.success(st.session_state.user_purchase_message)
+        st.session_state.user_purchase_message = None
 
 
 def render_user_topup():
@@ -514,6 +537,10 @@ def render_admin_dashboard():
 
 def render_admin_serve():
     st.markdown("### 🎫 Melayani Pesanan")
+    if st.session_state.get("admin_action_message"):
+        st.info(st.session_state.admin_action_message)
+        st.session_state.admin_action_message = None
+
     next_order = st.session_state.sistem.get_next_order()
     if next_order:
         st.markdown(f"#### Pesanan Selanjutnya: {next_order.ticket_number}")
@@ -524,18 +551,11 @@ def render_admin_serve():
         st.write(f"Lokasi: ({next_order.lokasi_x}, {next_order.lokasi_y})")
         col1, col2 = st.columns(2)
         with col1:
-            if st.button("✅ Layani Pesanan Ini", use_container_width=True, key="serve_next_order"):
-                result = st.session_state.sistem.serve_next_order(st.session_state.username)
-                if result:
-                    st.success(f"Pesanan tiket {result.ticket_number} berhasil dilayani.")
+            if st.button("✅ Layani Pesanan Ini", use_container_width=True, key="serve_next_order", on_click=handle_admin_serve_next_order, args=(next_order.ticket_number,)):
+                pass
         with col2:
-            if st.button("❌ Tolak Pesanan Ini", use_container_width=True, key="reject_next_order"):
-                result = st.session_state.sistem.reject_order(next_order.ticket_number, st.session_state.username)
-                if result:
-                    st.success(f"Pesanan tiket {next_order.ticket_number} berhasil ditolak.")
-                    st.session_state.sistem.reload_data()
-                else:
-                    st.error("Gagal menolak pesanan. Pesanan mungkin sudah diproses atau tidak ada.")
+            if st.button("❌ Tolak Pesanan Ini", use_container_width=True, key="reject_next_order", on_click=handle_admin_reject_order, args=(next_order.ticket_number,)):
+                pass
     else:
         st.info("Tidak ada pesanan dalam antrean.")
 
@@ -548,13 +568,8 @@ def render_admin_serve():
             with col1:
                 st.write(f"{idx}. {order.ticket_number} - {order.name} ({order.category}) - {order.status} - Antrian ke: {idx}")
             with col2:
-                if st.button("Tolak", key=f"reject_order_{order.ticket_number}", use_container_width=True):
-                    result = st.session_state.sistem.reject_order(order.ticket_number, st.session_state.username)
-                    if result:
-                        st.success(f"Pesanan tiket {order.ticket_number} berhasil ditolak.")
-                        st.session_state.sistem.reload_data()
-                    else:
-                        st.error("Gagal menolak pesanan.")
+                if st.button("Tolak", key=f"reject_order_{order.ticket_number}", use_container_width=True, on_click=handle_admin_reject_order, args=(order.ticket_number,)):
+                    pass
     else:
         st.info("Tidak ada antrian saat ini.")
 
