@@ -6,6 +6,7 @@ Dengan login admin/user, pembelian tiket, top-up saldo, dan visualisasi lokasi.
 import streamlit as st
 import plotly.graph_objects as go
 import random
+from datetime import datetime
 from ticket_system import SistemAntrian
 
 
@@ -199,6 +200,10 @@ def handle_admin_chat_submit(chat_id):
         st.session_state.admin_chat_reply = ""
     else:
         st.session_state.admin_chat_submit_status = "error"
+
+
+def select_admin_chat(chat_id):
+    st.session_state.admin_chat_selected = chat_id
 
 
 def reset_all_chats() -> bool:
@@ -620,6 +625,22 @@ def render_admin_chat():
         st.info("Belum ada chat dari pengguna.")
         return
 
+    def parse_time(value: str):
+        try:
+            return datetime.strptime(value, "%Y-%m-%d %H:%M:%S")
+        except Exception:
+            return datetime.min
+
+    def chat_sort_key(chat):
+        status = chat.get("status", "Menunggu")
+        created = parse_time(chat.get("created_at", "1970-01-01 00:00:00"))
+        updated = parse_time(chat.get("updated_at", chat.get("created_at", "1970-01-01 00:00:00")))
+        if status == "Menunggu":
+            return (0, created, 0)
+        return (1, -updated.timestamp(), created)
+
+    chats = sorted(chats, key=chat_sort_key)
+
     user_display_names = {}
     chat_ids = []
     for chat in chats:
@@ -641,12 +662,11 @@ def render_admin_chat():
             button_label = f"{display_name} ({chat_item['status']})"
             if is_selected:
                 st.markdown(
-                    f"<div style='border:2px solid #00D9FF; padding:10px; border-radius:10px; margin-bottom:8px; background: rgba(0, 217, 255, 0.1);'><strong>{button_label}</strong></div>",
+                    f"<div style='border:2px solid #00D9FF; padding:10px; border-radius:10px; margin-bottom:8px; background: rgba(0, 217, 255, 0.15);'><strong>{button_label}</strong></div>",
                     unsafe_allow_html=True
                 )
             else:
-                if st.button(button_label, key=f"admin_chat_btn_{chat_id}"):
-                    st.session_state.admin_chat_selected = chat_id
+                st.button(button_label, key=f"admin_chat_btn_{chat_id}", on_click=select_admin_chat, args=(chat_id,))
 
     chat = st.session_state.sistem.get_chat_by_id(st.session_state.admin_chat_selected)
     with col2:
