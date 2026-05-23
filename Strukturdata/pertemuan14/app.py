@@ -75,6 +75,35 @@ st.markdown("""
         background-color: #00FF00;
         color: black;
     }
+    .chat-container {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin-top: 10px;
+    }
+    .chat-bubble {
+        padding: 15px;
+        border-radius: 18px;
+        max-width: 80%;
+        line-height: 1.4;
+    }
+    .chat-user {
+        background: #0099ff;
+        color: white;
+        margin-left: auto;
+        text-align: right;
+    }
+    .chat-admin {
+        background: rgba(255, 255, 255, 0.12);
+        color: white;
+        margin-right: auto;
+        text-align: left;
+    }
+    .chat-meta {
+        font-size: 0.8rem;
+        color: #bbb;
+        margin-top: 4px;
+    }
     </style>
     """, unsafe_allow_html=True)
 
@@ -270,6 +299,40 @@ def render_user_history():
         st.info("Belum ada riwayat pembelian.")
 
 
+def render_user_chat():
+    username = st.session_state.username
+    st.markdown("### 💬 Chat dengan Admin")
+    if st.button("🔄 Segarkan Chat", use_container_width=True, key="user_refresh_chat"):
+        st.session_state.sistem.reload_data()
+        st.success("Chat berhasil disegarkan.")
+    chat = st.session_state.sistem.get_user_chat(username)
+    if chat:
+        status = chat.get('status', 'Menunggu')
+        position = st.session_state.sistem.get_chat_queue_position(chat['chat_id'])
+        if status == 'Menunggu' and position is not None:
+            st.info(f"Chat Anda saat ini berada di antrian ke {position} untuk direspon oleh admin.")
+        elif status != 'Menunggu':
+            st.success("Admin telah merespon chat Anda.")
+        st.markdown("<div class='chat-container'>", unsafe_allow_html=True)
+        for message in chat.get('messages', []):
+            bubble_class = 'chat-user' if message['sender'] == username else 'chat-admin'
+            sender_label = 'Anda' if message['sender'] == username else 'Admin'
+            st.markdown(f"<div class='chat-bubble {bubble_class}'><strong>{sender_label}</strong><p>{message['text']}</p><div class='chat-meta'>{message['timestamp']}</div></div>", unsafe_allow_html=True)
+        st.markdown("</div>", unsafe_allow_html=True)
+    else:
+        st.info("Belum ada chat dengan admin. Kirim pesan pertama untuk memulai.")
+
+    message = st.text_area("Tulis pesan untuk admin", key="user_chat_input", height=140)
+    if st.button("Kirim Pesan", use_container_width=True, key="user_send_chat"):
+        if message.strip():
+            st.session_state.sistem.send_user_message(username, message)
+            st.session_state.sistem.reload_data()
+            st.success("Pesan terkirim ke admin.")
+            st.session_state.user_chat_input = ""
+        else:
+            st.error("Masukkan pesan terlebih dahulu.")
+
+
 def render_user_account():
     username = st.session_state.username
     user = st.session_state.sistem.get_user_info(username)
@@ -297,12 +360,14 @@ def render_admin_dashboard():
     stats = st.session_state.sistem.get_statistik()
     pending_orders = st.session_state.sistem.get_pending_orders()
     order_history = st.session_state.sistem.get_admin_purchase_history()
+    pending_chats = st.session_state.sistem.get_pending_chat_count()
 
-    col1, col2, col3, col4 = st.columns(4)
+    col1, col2, col3, col4, col5 = st.columns(5)
     col1.metric("🕒 Pesanan Menunggu", stats['pending'])
     col2.metric("✅ Pesanan Selesai", stats['completed'])
     col3.metric("💰 Total Pendapatan", f"Rp {stats['revenue']:,}")
     col4.metric("📈 Selesai", f"{stats['completion_rate']:.1f}%")
+    col5.metric("💬 Chat Tertunda", pending_chats)
     
     st.markdown("---")
     st.markdown("### 📋 Riwayat Pembelian Tiket")
@@ -469,6 +534,52 @@ def render_admin_purchase_graph():
         st.info("Belum ada pembelian untuk divisualisasikan.")
 
 
+def render_admin_chat():
+    st.markdown("### 💬 Chat Pengguna")
+    pending_chats = st.session_state.sistem.get_pending_chat_count()
+    st.info(f"Ada {pending_chats} chat yang menunggu respon admin.")
+    chats = st.session_state.sistem.get_admin_chats()
+    if not chats:
+        st.info("Belum ada chat dari pengguna.")
+        return
+
+    chat_options = [f"{chat['chat_id']} - {chat['username']} ({chat['status']})" for chat in chats]
+    selected = st.selectbox("Pilih chat", chat_options, key="admin_chat_select")
+    selected_id = int(selected.split(" - ")[0])
+    chat = st.session_state.sistem.get_chat_by_id(selected_id)
+
+    col1, col2 = st.columns([1, 2])
+    with col1:
+        st.markdown("#### Daftar Chat")
+        for chat_item in chats:
+            label = f"{chat_item['username']} - {chat_item['status']}"
+            st.write(label)
+    with col2:
+        if chat:
+            st.markdown(f"#### Obrolan dengan {chat['username']}")
+            if chat.get('status') == 'Menunggu':
+                position = st.session_state.sistem.get_chat_queue_position(chat['chat_id'])
+                if position is not None:
+                    st.info(f"Chat ini berada di antrian ke {position} untuk dibalas.")
+            st.markdown("<div class='chat-container'>", unsafe_allow_html=True)
+            for message in chat.get('messages', []):
+                bubble_class = 'chat-user' if message['sender'] == chat['username'] else 'chat-admin'
+                sender_label = 'User' if message['sender'] == chat['username'] else 'Admin'
+                st.markdown(f"<div class='chat-bubble {bubble_class}'><strong>{sender_label}</strong><p>{message['text']}</p><div class='chat-meta'>{message['timestamp']}</div></div>", unsafe_allow_html=True)
+            st.markdown("</div>", unsafe_allow_html=True)
+            admin_reply = st.text_area("Balas chat ini", key="admin_chat_reply", height=140)
+            if st.button("Kirim Balasan", use_container_width=True, key="admin_send_reply"):
+                if admin_reply.strip():
+                    st.session_state.sistem.send_admin_message(chat['chat_id'], admin_reply)
+                    st.session_state.sistem.reload_data()
+                    st.success("Balasan terkirim ke pengguna.")
+                    st.session_state.admin_chat_reply = ""
+                else:
+                    st.error("Masukkan pesan sebelum mengirim.")
+        else:
+            st.info("Chat tidak ditemukan.")
+
+
 st.markdown('<div class="header-title">🎪 SISTEM ANTRIAN TIKET KEREN 🎪</div>', unsafe_allow_html=True)
 st.markdown("---")
 
@@ -482,9 +593,11 @@ with st.sidebar:
     if not st.session_state.logged_in:
         options = ["🔐 Login", "📝 Register"]
     elif st.session_state.user_role == "admin":
-        options = ["🏠 Dashboard Admin", "🎫 Melayani Pesanan", "🏷️ Harga Tiket", "🧑‍💻 Kelola User", "🧹 Reset Riwayat", "🗺️ Visualisasi Lokasi", "📊 Grafik Pembelian", "📋 Riwayat", "🚪 Logout"]
+        pending_chat_count = st.session_state.sistem.get_pending_chat_count()
+        chat_label = f"💬 Chat ({pending_chat_count})" if pending_chat_count else "💬 Chat"
+        options = ["🏠 Dashboard Admin", "🎫 Melayani Pesanan", "🏷️ Harga Tiket", "🧑‍💻 Kelola User", "🧹 Reset Riwayat", chat_label, "🗺️ Visualisasi Lokasi", "📊 Grafik Pembelian", "📋 Riwayat", "🚪 Logout"]
     else:
-        options = ["🏠 Dashboard", "🎫 Beli Tiket", "💳 Top Up", "📍 Lokasi", "📋 Riwayat", "⚙️ Akun", "🚪 Logout"]
+        options = ["🏠 Dashboard", "🎫 Beli Tiket", "💳 Top Up", "📍 Lokasi", "💬 Chat Admin", "📋 Riwayat", "⚙️ Akun", "🚪 Logout"]
 
     if st.session_state.menu not in options:
         st.session_state.menu = options[0]
@@ -510,6 +623,8 @@ else:
             render_admin_user_management()
         elif menu == "🧹 Reset Riwayat":
             render_admin_reset()
+        elif menu.startswith("💬 Chat"):
+            render_admin_chat()
         elif menu == "🗺️ Visualisasi Lokasi":
             render_location_visualization()
         elif menu == "📊 Grafik Pembelian":
@@ -526,6 +641,8 @@ else:
             render_user_topup()
         elif menu == "📍 Lokasi":
             render_user_location()
+        elif menu == "💬 Chat Admin":
+            render_user_chat()
         elif menu == "📋 Riwayat":
             render_user_history()
         elif menu == "⚙️ Akun":

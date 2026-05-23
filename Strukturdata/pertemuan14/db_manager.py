@@ -23,7 +23,8 @@ DEFAULT_DB = {
         {"name": "VIP", "price": 100000},
         {"name": "VVIP", "price": 150000}
     ],
-    "orders": []
+    "orders": [],
+    "chats": []
 }
 
 
@@ -71,6 +72,18 @@ class DatabaseManager:
                 order["username"] = self._normalize_username(order["username"])
             if isinstance(order.get("name"), str):
                 order["name"] = order["name"].strip()
+        for chat in data.get("chats", []):
+            if isinstance(chat.get("username"), str):
+                chat["username"] = self._normalize_username(chat["username"])
+            chat["status"] = chat.get("status", "Menunggu")
+            chat["created_at"] = chat.get("created_at", datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+            chat["updated_at"] = chat.get("updated_at", chat["created_at"])
+            chat["messages"] = chat.get("messages", [])
+            for message in chat["messages"]:
+                if isinstance(message.get("sender"), str):
+                    message["sender"] = message["sender"].strip()
+                message["text"] = message.get("text", "")
+                message["timestamp"] = message.get("timestamp", datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
         return data
 
     def get_admin(self, username: str) -> Optional[Dict[str, Any]]:
@@ -193,6 +206,44 @@ class DatabaseManager:
     
     def get_all_orders(self) -> List[Dict[str, Any]]:
         return self.data["orders"]
+
+    def get_chat(self, chat_id: int) -> Optional[Dict[str, Any]]:
+        return next((chat for chat in self.data.get("chats", []) if chat.get("chat_id") == chat_id), None)
+
+    def get_chats(self, status: Optional[str] = None, username: Optional[str] = None) -> List[Dict[str, Any]]:
+        chats = self.data.get("chats", [])
+        if status:
+            chats = [chat for chat in chats if chat.get("status") == status]
+        if username:
+            username = self._normalize_username(username)
+            chats = [chat for chat in chats if self._normalize_username(chat.get("username", "")) == username]
+        return sorted(chats, key=lambda x: x["created_at"])
+
+    def get_all_chats(self) -> List[Dict[str, Any]]:
+        return self.data.get("chats", [])
+
+    def add_chat(self, chat: Dict[str, Any]) -> None:
+        self.data.setdefault("chats", []).append(chat)
+        self.save()
+
+    def update_chat(self, chat_id: int, **fields: Any) -> bool:
+        chat = self.get_chat(chat_id)
+        if not chat:
+            return False
+        for key, value in fields.items():
+            if key in ["status", "updated_at", "username"] or key == "messages":
+                chat[key] = value
+        self.save()
+        return True
+
+    def add_chat_message(self, chat_id: int, message: Dict[str, Any]) -> bool:
+        chat = self.get_chat(chat_id)
+        if not chat:
+            return False
+        chat.setdefault("messages", []).append(message)
+        chat["updated_at"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        self.save()
+        return True
 
     def reset_orders(self) -> None:
         self.data["orders"] = []

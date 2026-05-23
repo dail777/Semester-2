@@ -138,5 +138,31 @@
             "served_by": "admin",
             "served_time": "2026-05-23 15:41:53"
         }
+    ],
+    "chats": [
+        {
+            "chat_id": 1,
+            "username": "dail",
+            "created_at": "2026-05-23 21:56:49",
+            "updated_at": "2026-05-23 21:57:23",
+            "status": "Ditanggapi",
+            "messages": [
+                {
+                    "sender": "dail",
+                    "text": "halo admin",
+                    "timestamp": "2026-05-23 21:56:49"
+                },
+                {
+                    "sender": "dail",
+                    "text": "halo admin",
+                    "timestamp": "2026-05-23 21:56:56"
+                },
+                {
+                    "sender": "admin",
+                    "text": "halo",
+                    "timestamp": "2026-05-23 21:57:23"
+                }
+            ]
+        }
     ]
 }

@@ -138,7 +138,70 @@ class SistemAntrian:
         self.reload_data()
         username = self._normalize_username(username)
         return self.db.get_user(username)
-    
+
+    def get_user_chat(self, username: str) -> Optional[Dict[str, Any]]:
+        username = self._normalize_username(username)
+        chats = self.db.get_chats(username=username)
+        return chats[-1] if chats else None
+
+    def send_user_message(self, username: str, text: str) -> Optional[Dict[str, Any]]:
+        username = self._normalize_username(username)
+        user = self.db.get_user(username)
+        if not user or not text.strip():
+            return None
+        now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        existing_chat = self.get_user_chat(username)
+        message = {"sender": username, "text": text.strip(), "timestamp": now}
+        if existing_chat:
+            self.db.add_chat_message(existing_chat["chat_id"], message)
+            self.db.update_chat(existing_chat["chat_id"], status="Menunggu", updated_at=now)
+            chat = existing_chat
+        else:
+            chat_id = self._get_next_chat_id()
+            chat = {
+                "chat_id": chat_id,
+                "username": username,
+                "created_at": now,
+                "updated_at": now,
+                "status": "Menunggu",
+                "messages": [message]
+            }
+            self.db.add_chat(chat)
+        self.db.save()
+        return chat
+
+    def send_admin_message(self, chat_id: int, text: str) -> Optional[Dict[str, Any]]:
+        if not text.strip():
+            return None
+        now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        message = {"sender": "admin", "text": text.strip(), "timestamp": now}
+        if self.db.add_chat_message(chat_id, message):
+            self.db.update_chat(chat_id, status="Ditanggapi", updated_at=now)
+            return self.db.get_chat(chat_id)
+        return None
+
+    def _get_next_chat_id(self) -> int:
+        chats = self.db.get_all_chats()
+        if not chats:
+            return 1
+        return max(chat["chat_id"] for chat in chats) + 1
+
+    def get_chat_queue_position(self, chat_id: int) -> Optional[int]:
+        pending = self.db.get_chats(status="Menunggu")
+        for idx, chat in enumerate(pending, 1):
+            if chat["chat_id"] == chat_id:
+                return idx
+        return None
+
+    def get_admin_chats(self) -> List[Dict[str, Any]]:
+        return self.db.get_all_chats()
+
+    def get_chat_by_id(self, chat_id: int) -> Optional[Dict[str, Any]]:
+        return self.db.get_chat(chat_id)
+
+    def get_pending_chat_count(self) -> int:
+        return len(self.db.get_chats(status="Menunggu"))
+
     def update_user_name(self, username: str, new_name: str) -> bool:
         username = self._normalize_username(username)
         result = self.db.update_user(username, name=new_name)
