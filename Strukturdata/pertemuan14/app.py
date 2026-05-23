@@ -90,20 +90,19 @@ st.markdown("""
         word-wrap: break-word;
         margin-bottom: 8px;
     }
-    .chat-user {
+    .chat-right {
         background: #0099ff;
         color: white;
         margin-left: auto;
         text-align: right;
     }
-    .chat-admin {
+    .chat-left {
         background: rgba(255, 255, 255, 0.18);
         color: white;
         margin-right: auto;
         text-align: left;
     }
-    .chat-user p,
-    .chat-admin p {
+    .chat-bubble p {
         margin: 5px 0 0;
         padding: 0;
     }
@@ -356,7 +355,7 @@ def render_user_chat():
             st.info(f"Chat Anda saat ini berada di antrian ke {position} untuk direspon oleh admin.")
         st.markdown("<div class='chat-container'>", unsafe_allow_html=True)
         for message in chat.get('messages', []):
-            bubble_class = 'chat-user' if message['sender'] == username else 'chat-admin'
+            bubble_class = 'chat-right' if message['sender'] == username else 'chat-left'
             sender_label = 'Anda' if message['sender'] == username else 'Admin'
             st.markdown(f"<div class='chat-bubble {bubble_class}'><strong>{sender_label}</strong><p>{message['text']}</p><div class='chat-meta'>{message['timestamp']}</div></div>", unsafe_allow_html=True)
         st.markdown("</div>", unsafe_allow_html=True)
@@ -593,28 +592,42 @@ def render_admin_chat():
         st.info("Belum ada chat dari pengguna.")
         return
 
-    chat_options = [f"{chat['chat_id']} - {chat['username']} ({chat['status']})" for chat in chats]
-    selected = st.selectbox("Pilih chat", chat_options, key="admin_chat_select")
-    selected_id = int(selected.split(" - ")[0])
+    user_display_names = {}
+    chat_ids = []
+    for chat in chats:
+        user = st.session_state.sistem.get_user_info(chat['username'])
+        display_name = user['name'] if user else chat['username']
+        user_display_names[chat['chat_id']] = display_name
+        chat_ids.append(chat['chat_id'])
+
+    def _chat_label(chat_id):
+        chat = st.session_state.sistem.get_chat_by_id(chat_id)
+        display_name = user_display_names.get(chat_id, chat['username'] if chat else 'Unknown')
+        status = chat['status'] if chat else 'Unknown'
+        return f"{chat_id} - {display_name} ({status})"
+
+    selected_id = st.selectbox("Pilih chat", chat_ids, format_func=_chat_label, key="admin_chat_select")
     chat = st.session_state.sistem.get_chat_by_id(selected_id)
 
     col1, col2 = st.columns([1, 2])
     with col1:
         st.markdown("#### Daftar Chat")
         for chat_item in chats:
-            label = f"{chat_item['username']} - {chat_item['status']}"
+            display_name = user_display_names.get(chat_item['chat_id'], chat_item['username'])
+            label = f"{display_name} - {chat_item['status']}"
             st.write(label)
     with col2:
         if chat:
-            st.markdown(f"#### Obrolan dengan {chat['username']}")
+            display_name = user_display_names.get(chat['chat_id'], chat['username'])
+            st.markdown(f"#### Obrolan dengan {display_name}")
             if chat.get('status') == 'Menunggu':
                 position = st.session_state.sistem.get_chat_queue_position(chat['chat_id'])
                 if position is not None:
                     st.info(f"Chat ini berada di antrian ke {position} untuk dibalas.")
             st.markdown("<div class='chat-container'>", unsafe_allow_html=True)
             for message in chat.get('messages', []):
-                bubble_class = 'chat-user' if message['sender'] == chat['username'] else 'chat-admin'
-                sender_label = 'User' if message['sender'] == chat['username'] else 'Admin'
+                bubble_class = 'chat-right' if message['sender'] == 'admin' else 'chat-left'
+                sender_label = 'Admin' if message['sender'] == 'admin' else user_display_names.get(chat['chat_id'], chat['username'])
                 st.markdown(f"<div class='chat-bubble {bubble_class}'><strong>{sender_label}</strong><p>{message['text']}</p><div class='chat-meta'>{message['timestamp']}</div></div>", unsafe_allow_html=True)
             st.markdown("</div>", unsafe_allow_html=True)
             st.text_area("Balas chat ini", key="admin_chat_reply", height=140)
@@ -643,7 +656,10 @@ with st.sidebar:
         options = ["🏠 Dashboard", "🎫 Beli Tiket", "💳 Top Up", "📍 Lokasi", "💬 Chat Admin", "📋 Riwayat", "⚙️ Akun", "🚪 Logout"]
 
     if st.session_state.menu not in options:
-        st.session_state.menu = options[0]
+        if st.session_state.menu.startswith("💬 Chat"):
+            st.session_state.menu = chat_label
+        else:
+            st.session_state.menu = options[0]
 
     menu = st.radio("Menu:", options, key="menu", label_visibility="collapsed")
 
