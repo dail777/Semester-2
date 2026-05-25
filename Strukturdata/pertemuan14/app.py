@@ -4,6 +4,7 @@ Dengan login admin/user, pembelian tiket, top-up saldo, dan visualisasi lokasi.
 """
 
 import streamlit as st
+import streamlit.components.v1 as components
 import plotly.graph_objects as go
 import random
 from datetime import datetime
@@ -283,13 +284,24 @@ def handle_admin_reject_order(ticket_number: int):
     st.session_state.sistem.reload_data()
 
 
+def setup_auto_refresh(interval_seconds: int = 3):
+    st.session_state.sistem.reload_data()
+    components.html(f"""
+        <script>
+        if (!window.__auto_refresh_active) {{
+            window.__auto_refresh_active = true;
+            setTimeout(() => window.location.reload(), {interval_seconds * 1000});
+        }}
+        </script>
+    """, height=0)
+
+
 def render_user_dashboard():
     username = st.session_state.username
     user = st.session_state.sistem.get_user_info(username)
     st.markdown(f"### 🏠 Dashboard User - {user['name']}")
-    if st.button("🔄 Segarkan Data", use_container_width=True, key="user_refresh_dashboard"):
-        st.session_state.sistem.reload_data()
-        st.success("Data berhasil disegarkan.")
+    setup_auto_refresh()
+    st.info("Data akan disegarkan otomatis setiap 3 detik.")
 
     stats = st.session_state.sistem.get_statistik()
     order_history = st.session_state.sistem.get_user_purchase_history(username)
@@ -397,9 +409,8 @@ def render_user_location():
 def render_user_history():
     username = st.session_state.username
     st.markdown("### 📋 Riwayat Pembelian")
-    if st.button("🔄 Segarkan Riwayat", use_container_width=True, key="user_refresh_history"):
-        st.session_state.sistem.reload_data()
-        st.success("Riwayat berhasil disegarkan.")
+    setup_auto_refresh()
+    st.info("Riwayat akan disegarkan otomatis setiap 3 detik.")
     history = st.session_state.sistem.get_user_purchase_history(username)
     if history:
         for order in reversed(history[-10:]):
@@ -425,10 +436,8 @@ def render_user_history():
 def render_user_chat():
     username = st.session_state.username
     st.markdown("### 💬 Chat dengan Admin")
-    st.session_state.sistem.reload_data()
-    if st.button("🔄 Segarkan Chat", use_container_width=True, key="user_refresh_chat"):
-        st.session_state.sistem.reload_data()
-        st.success("Chat berhasil disegarkan.")
+    setup_auto_refresh()
+    st.info("Chat akan disegarkan otomatis setiap 3 detik.")
 
     if "user_chat_input" not in st.session_state:
         st.session_state.user_chat_input = ""
@@ -481,9 +490,8 @@ def render_user_account():
 
 def render_admin_dashboard():
     st.markdown("### 🏠 Dashboard Admin")
-    if st.button("🔄 Refresh Data", use_container_width=True):
-        st.session_state.sistem.reload_data()
-        st.success("Data admin berhasil diperbarui.")
+    setup_auto_refresh()
+    st.info("Data admin akan disegarkan otomatis setiap 3 detik.")
 
     stats = st.session_state.sistem.get_statistik()
     pending_orders = st.session_state.sistem.get_pending_orders()
@@ -739,10 +747,8 @@ def render_admin_chat():
     if "admin_chat_selected" not in st.session_state:
         st.session_state.admin_chat_selected = None
 
-    st.session_state.sistem.reload_data()
-    if st.button("🔄 Segarkan Chat (Global)", use_container_width=True, key="admin_refresh_chat_global"):
-        st.session_state.sistem.reload_data()
-        st.success("Chat berhasil disegarkan.")
+    setup_auto_refresh()
+    st.info("Chat pengguna akan disegarkan otomatis setiap 3 detik.")
 
     if "admin_chat_reply" not in st.session_state:
         st.session_state.admin_chat_reply = ""
@@ -815,9 +821,6 @@ def render_admin_chat():
                 position = st.session_state.sistem.get_chat_queue_position(chat['chat_id'])
                 if position is not None:
                     st.info(f"Chat ini berada di antrian ke {position} untuk dibalas.")
-            if st.button("🔄 Segarkan Obrolan Ini", use_container_width=True, key="admin_refresh_chat_inner"):
-                st.session_state.sistem.reload_data()
-                st.success("Obrolan berhasil disegarkan.")
             st.markdown("<div class='chat-container'>", unsafe_allow_html=True)
             for message in chat.get('messages', []):
                 bubble_class = 'chat-right' if message['sender'] == 'admin' else 'chat-left'
