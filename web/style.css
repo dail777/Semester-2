@@ -1,0 +1,758 @@
+/* ===========================
+   RESET & BASE STYLES
+   =========================== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --primary-color: #2563eb;
+    --secondary-color: #1e40af;
+    --success-color: #10b981;
+    --warning-color: #f59e0b;
+    --danger-color: #ef4444;
+    --light-bg: #f8fafc;
+    --white: #ffffff;
+    --dark-text: #1f2937;
+    --gray-text: #6b7280;
+    --gray-border: #e5e7eb;
+    --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--light-bg);
+    color: var(--dark-text);
+    line-height: 1.6;
+}
+
+/* ===========================
+   CONTAINER & LAYOUT
+   =========================== */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* ===========================
+   HEADER
+   =========================== */
+header {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    color: var(--white);
+    padding: 40px 30px;
+    border-radius: 12px;
+    margin-bottom: 30px;
+    box-shadow: var(--shadow-lg);
+    text-align: center;
+}
+
+header h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+    letter-spacing: -0.5px;
+}
+
+header p {
+    font-size: 1.1rem;
+    opacity: 0.95;
+    font-weight: 300;
+}
+
+/* ===========================
+   NAVIGATION TABS
+   =========================== */
+.tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 30px;
+    border-bottom: 2px solid var(--gray-border);
+    overflow-x: auto;
+    padding-bottom: 0;
+}
+
+.tab-btn {
+    padding: 12px 20px;
+    border: none;
+    background: transparent;
+    color: var(--gray-text);
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    border-bottom: 3px solid transparent;
+    white-space: nowrap;
+}
+
+.tab-btn:hover {
+    color: var(--primary-color);
+}
+
+.tab-btn.active {
+    color: var(--primary-color);
+    border-bottom-color: var(--primary-color);
+}
+
+/* ===========================
+   TAB CONTENT
+   =========================== */
+.tab-content {
+    display: none;
+    animation: fadeIn 0.3s ease;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.tab-content h2 {
+    font-size: 1.8rem;
+    color: var(--dark-text);
+    margin-bottom: 25px;
+    font-weight: 600;
+}
+
+/* ===========================
+   FORMS
+   =========================== */
+form {
+    background: var(--white);
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: var(--shadow);
+    margin-bottom: 30px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group label {
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: var(--dark-text);
+    font-size: 0.95rem;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    padding: 12px 15px;
+    border: 2px solid var(--gray-border);
+    border-radius: 8px;
+    font-size: 1rem;
+    font-family: inherit;
+    transition: all 0.3s ease;
+    background-color: var(--white);
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    background-color: var(--white);
+}
+
+.form-group textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+.form-group select {
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%232563eb' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 35px;
+}
+
+/* ===========================
+   BUTTONS
+   =========================== */
+.btn-submit,
+.btn-reset,
+#btn-filter,
+#btn-reset-filter,
+#btn-lihat-rekap {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-block;
+}
+
+.btn-submit,
+#btn-filter,
+#btn-lihat-rekap {
+    background-color: var(--primary-color);
+    color: var(--white);
+}
+
+.btn-submit:hover,
+#btn-filter:hover,
+#btn-lihat-rekap:hover {
+    background-color: var(--secondary-color);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow);
+}
+
+.btn-reset,
+#btn-reset-filter {
+    background-color: var(--gray-border);
+    color: var(--dark-text);
+    margin-left: 10px;
+}
+
+.btn-reset:hover,
+#btn-reset-filter:hover {
+    background-color: #d1d5db;
+}
+
+.btn-delete {
+    background-color: var(--danger-color);
+    color: var(--white);
+    padding: 6px 12px;
+    font-size: 0.85rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-delete:hover {
+    background-color: #dc2626;
+}
+
+/* ===========================
+   DATA LISTS
+   =========================== */
+.data-list {
+    background: var(--white);
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: var(--shadow);
+}
+
+.data-list h3 {
+    font-size: 1.3rem;
+    color: var(--dark-text);
+    margin-bottom: 20px;
+    font-weight: 600;
+}
+
+#ul-pemasukan,
+#ul-pengeluaran {
+    list-style: none;
+}
+
+#ul-pemasukan li,
+#ul-pengeluaran li {
+    padding: 15px;
+    border-left: 4px solid var(--primary-color);
+    background-color: var(--light-bg);
+    margin-bottom: 12px;
+    border-radius: 5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.3s ease;
+}
+
+#ul-pemasukan li:hover,
+#ul-pengeluaran li:hover {
+    box-shadow: var(--shadow);
+    transform: translateX(5px);
+}
+
+#ul-pemasukan li strong,
+#ul-pengeluaran li strong {
+    color: var(--primary-color);
+    font-size: 1.1rem;
+}
+
+.list-item-left {
+    flex: 1;
+}
+
+.list-item-right {
+    text-align: right;
+}
+
+/* ===========================
+   FILTER SECTION
+   =========================== */
+.filter-section {
+    background: var(--white);
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: var(--shadow);
+    margin-bottom: 25px;
+}
+
+.filter-section h3 {
+    font-size: 1.2rem;
+    margin-bottom: 20px;
+    color: var(--dark-text);
+    font-weight: 600;
+}
+
+.filter-group {
+    margin-bottom: 15px;
+    display: flex;
+    flex-direction: column;
+}
+
+.filter-group label {
+    font-weight: 500;
+    margin-bottom: 8px;
+    color: var(--dark-text);
+}
+
+.filter-group input,
+.filter-group select {
+    padding: 10px 12px;
+    border: 2px solid var(--gray-border);
+    border-radius: 6px;
+    font-size: 0.95rem;
+}
+
+/* ===========================
+   TABLES
+   =========================== */
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--white);
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+}
+
+.data-table thead {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    color: var(--white);
+}
+
+.data-table th {
+    padding: 15px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+.data-table td {
+    padding: 12px 15px;
+    border-bottom: 1px solid var(--gray-border);
+    font-size: 0.95rem;
+}
+
+.data-table tbody tr:hover {
+    background-color: var(--light-bg);
+}
+
+.data-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* ===========================
+   STATISTIK & INFO BOXES
+   =========================== */
+.statistik,
+.info-box,
+.summary-box {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    padding: 20px;
+    background: var(--light-bg);
+    border-radius: 10px;
+    margin-bottom: 20px;
+}
+
+.statistik p,
+.info-box p,
+.summary-item p {
+    font-size: 0.95rem;
+    color: var(--gray-text);
+    margin-bottom: 5px;
+}
+
+.statistik strong,
+.info-box strong,
+.summary-item strong {
+    display: block;
+    font-size: 1.5rem;
+    color: var(--primary-color);
+    margin-top: 5px;
+}
+
+.budget-item {
+    background: var(--white);
+    padding: 15px;
+    border-radius: 8px;
+    border-left: 4px solid var(--primary-color);
+}
+
+.summary-item {
+    background: var(--white);
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+    border-top: 3px solid var(--primary-color);
+}
+
+/* ===========================
+   WARNING BOX
+   =========================== */
+.warning-box {
+    background: #fef3c7;
+    border-left: 4px solid var(--warning-color);
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    animation: slideDown 0.3s ease;
+}
+
+.warning-box h4 {
+    color: var(--warning-color);
+    margin-bottom: 10px;
+    font-size: 1.1rem;
+}
+
+.warning-box p {
+    color: #92400e;
+    margin: 0;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ===========================
+   PROGRESS BAR
+   =========================== */
+.progress-bar-container {
+    background: var(--gray-border);
+    border-radius: 10px;
+    overflow: hidden;
+    height: 30px;
+    margin-bottom: 20px;
+}
+
+.progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--success-color), var(--primary-color));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--white);
+    font-weight: 600;
+    font-size: 0.85rem;
+    transition: width 0.4s ease;
+}
+
+.progress-bar.warning {
+    background: linear-gradient(90deg, var(--warning-color), var(--danger-color));
+}
+
+/* ===========================
+   SECTIONS
+   =========================== */
+.budget-setup,
+.budget-status,
+.budget-history,
+.rekap-filter,
+.rekap-content,
+.rekap-summary,
+.rekap-kategori,
+.rekap-detail,
+.riwayat-hasil {
+    background: var(--white);
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: var(--shadow);
+    margin-bottom: 25px;
+}
+
+.budget-setup h3,
+.budget-status h3,
+.budget-history h3,
+.rekap-filter h3,
+.rekap-summary h3,
+.rekap-kategori h3,
+.rekap-detail h3,
+.riwayat-hasil h3 {
+    font-size: 1.3rem;
+    color: var(--dark-text);
+    margin-bottom: 20px;
+    font-weight: 600;
+}
+
+/* ===========================
+   TAB DETAILS
+   =========================== */
+.tabs-detail {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    border-bottom: 2px solid var(--gray-border);
+}
+
+.tab-detail-btn {
+    padding: 10px 15px;
+    border: none;
+    background: transparent;
+    color: var(--gray-text);
+    cursor: pointer;
+    font-size: 0.95rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    border-bottom: 3px solid transparent;
+}
+
+.tab-detail-btn:hover {
+    color: var(--primary-color);
+}
+
+.tab-detail-btn.active {
+    color: var(--primary-color);
+    border-bottom-color: var(--primary-color);
+}
+
+.tab-detail-content {
+    display: none;
+}
+
+.tab-detail-content.active {
+    display: block;
+    animation: fadeIn 0.3s ease;
+}
+
+/* ===========================
+   FOOTER
+   =========================== */
+footer {
+    margin-top: auto;
+    padding: 30px;
+    text-align: center;
+    color: var(--gray-text);
+    border-top: 2px solid var(--gray-border);
+    font-size: 0.95rem;
+}
+
+/* ===========================
+   RESPONSIVE DESIGN
+   =========================== */
+@media (max-width: 768px) {
+    header h1 {
+        font-size: 1.8rem;
+    }
+
+    header p {
+        font-size: 0.95rem;
+    }
+
+    .tabs {
+        gap: 5px;
+    }
+
+    .tab-btn {
+        padding: 10px 15px;
+        font-size: 0.9rem;
+    }
+
+    form {
+        padding: 20px;
+    }
+
+    .form-group {
+        margin-bottom: 15px;
+    }
+
+    .data-list,
+    .filter-section,
+    .budget-setup,
+    .budget-status,
+    .budget-history,
+    .rekap-filter,
+    .rekap-content,
+    .rekap-summary,
+    .rekap-kategori,
+    .rekap-detail,
+    .riwayat-hasil {
+        padding: 20px;
+    }
+
+    .statistik,
+    .info-box,
+    .summary-box {
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+        padding: 15px;
+    }
+
+    .data-table {
+        font-size: 0.85rem;
+    }
+
+    .data-table th,
+    .data-table td {
+        padding: 10px;
+    }
+
+    .btn-submit,
+    .btn-reset,
+    #btn-filter,
+    #btn-reset-filter,
+    #btn-lihat-rekap {
+        padding: 10px 15px;
+        font-size: 0.9rem;
+        width: 100%;
+        margin-bottom: 10px;
+    }
+
+    .btn-reset,
+    #btn-reset-filter {
+        margin-left: 0;
+    }
+}
+
+@media (max-width: 480px) {
+    .container {
+        padding: 10px;
+    }
+
+    header {
+        padding: 25px 15px;
+        margin-bottom: 20px;
+    }
+
+    header h1 {
+        font-size: 1.5rem;
+    }
+
+    .tabs {
+        margin-bottom: 20px;
+    }
+
+    .tab-content h2 {
+        font-size: 1.4rem;
+        margin-bottom: 20px;
+    }
+
+    form {
+        padding: 15px;
+        margin-bottom: 20px;
+    }
+
+    .data-list,
+    .filter-section,
+    .budget-setup,
+    .budget-status,
+    .budget-history,
+    .rekap-filter,
+    .rekap-content,
+    .rekap-summary,
+    .rekap-kategori,
+    .rekap-detail,
+    .riwayat-hasil {
+        padding: 15px;
+        margin-bottom: 20px;
+    }
+
+    .statistik,
+    .info-box,
+    .summary-box {
+        grid-template-columns: 1fr;
+        gap: 10px;
+        padding: 12px;
+    }
+
+    #ul-pemasukan li,
+    #ul-pengeluaran li {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 12px;
+    }
+
+    .list-item-right {
+        text-align: left;
+        margin-top: 10px;
+        width: 100%;
+    }
+
+    .data-table {
+        font-size: 0.75rem;
+    }
+
+    .data-table th,
+    .data-table td {
+        padding: 8px;
+    }
+
+    .btn-submit,
+    .btn-reset,
+    #btn-filter,
+    #btn-reset-filter,
+    #btn-lihat-rekap {
+        padding: 10px 12px;
+        font-size: 0.85rem;
+    }
+}
+
+/* ===========================
+   UTILITY CLASSES
+   =========================== */
+.text-success {
+    color: var(--success-color);
+}
+
+.text-warning {
+    color: var(--warning-color);
+}
+
+.text-danger {
+    color: var(--danger-color);
+}
+
+.text-center {
+    text-align: center;
+}
