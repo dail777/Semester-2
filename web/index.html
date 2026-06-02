@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Management Pengeluaran Anak Kos</title>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <h1>💰 Manajemen Pengeluaran Anak Kos</h1>
+            <p>Kelola keuanganmu dengan bijak</p>
+        </header>
+
+        <!-- Navigation Tabs -->
+        <nav class="tabs">
+            <button class="tab-btn active" data-tab="pemasukan">Pemasukan</button>
+            <button class="tab-btn" data-tab="pengeluaran">Pengeluaran</button>
+            <button class="tab-btn" data-tab="riwayat">Riwayat</button>
+            <button class="tab-btn" data-tab="budget">Budget Bulanan</button>
+            <button class="tab-btn" data-tab="rekap">Rekap Bulanan</button>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="content">
+            
+            <!-- TAB 1: PEMASUKAN -->
+            <section id="pemasukan" class="tab-content active">
+                <h2>Input Pemasukan</h2>
+                <form id="form-pemasukan">
+                    <div class="form-group">
+                        <label for="tgl-pemasukan">Tanggal Pemasukan:</label>
+                        <input type="date" id="tgl-pemasukan" name="tgl-pemasukan" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="nominal-pemasukan">Nominal Pemasukan (Rp):</label>
+                        <input type="number" id="nominal-pemasukan" name="nominal-pemasukan" placeholder="Contoh: 500000" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="sumber-pemasukan">Sumber Pemasukan:</label>
+                        <input type="text" id="sumber-pemasukan" name="sumber-pemasukan" placeholder="Contoh: Uang orang tua, Gaji freelance">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="catatan-pemasukan">Catatan:</label>
+                        <textarea id="catatan-pemasukan" name="catatan-pemasukan" rows="3" placeholder="Catatan tambahan (opsional)"></textarea>
+                    </div>
+
+                    <button type="submit" class="btn-submit">Simpan Pemasukan</button>
+                </form>
+
+                <div id="list-pemasukan" class="data-list">
+                    <h3>Daftar Pemasukan</h3>
+                    <ul id="ul-pemasukan"></ul>
+                </div>
+            </section>
+
+            <!-- TAB 2: PENGELUARAN -->
+            <section id="pengeluaran" class="tab-content">
+                <h2>Input Pengeluaran</h2>
+                <form id="form-pengeluaran">
+                    <div class="form-group">
+                        <label for="tgl-pengeluaran">Tanggal Pengeluaran:</label>
+                        <input type="date" id="tgl-pengeluaran" name="tgl-pengeluaran" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="kategori-pengeluaran">Kategori:</label>
+                        <select id="kategori-pengeluaran" name="kategori-pengeluaran" required>
+                            <option value="">-- Pilih Kategori --</option>
+                            <option value="makanan">🍽️ Makanan</option>
+                            <option value="transport">🚗 Transport</option>
+                            <option value="jajan">🍿 Jajan</option>
+                            <option value="hiburan">🎬 Hiburan</option>
+                            <option value="kesehatan">⚕️ Kesehatan</option>
+                            <option value="pendidikan">📚 Pendidikan</option>
+                            <option value="kebutuhan">🛒 Kebutuhan Sehari-hari</option>
+                            <option value="lainnya">❓ Lainnya</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="nominal-pengeluaran">Nominal (Rp):</label>
+                        <input type="number" id="nominal-pengeluaran" name="nominal-pengeluaran" placeholder="Contoh: 50000" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="catatan-pengeluaran">Catatan:</label>
+                        <textarea id="catatan-pengeluaran" name="catatan-pengeluaran" rows="3" placeholder="Deskripsi pengeluaran (opsional)"></textarea>
+                    </div>
+
+                    <button type="submit" class="btn-submit">Simpan Pengeluaran</button>
+                </form>
+
+                <div id="list-pengeluaran" class="data-list">
+                    <h3>Daftar Pengeluaran Terbaru</h3>
+                    <ul id="ul-pengeluaran"></ul>
+                </div>
+            </section>
+
+            <!-- TAB 3: RIWAYAT -->
+            <section id="riwayat" class="tab-content">
+                <h2>Riwayat Pengeluaran</h2>
+                
+                <div class="filter-section">
+                    <h3>Filter Riwayat</h3>
+                    
+                    <div class="filter-group">
+                        <label for="filter-kategori">Kategori:</label>
+                        <select id="filter-kategori">
+                            <option value="">-- Semua Kategori --</option>
+                            <option value="makanan">🍽️ Makanan</option>
+                            <option value="transport">🚗 Transport</option>
+                            <option value="jajan">🍿 Jajan</option>
+                            <option value="hiburan">🎬 Hiburan</option>
+                            <option value="kesehatan">⚕️ Kesehatan</option>
+                            <option value="pendidikan">📚 Pendidikan</option>
+                            <option value="kebutuhan">🛒 Kebutuhan Sehari-hari</option>
+                            <option value="lainnya">❓ Lainnya</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label for="filter-tanggal-mulai">Dari Tanggal:</label>
+                        <input type="date" id="filter-tanggal-mulai">
+                    </div>
+
+                    <div class="filter-group">
+                        <label for="filter-tanggal-akhir">Sampai Tanggal:</label>
+                        <input type="date" id="filter-tanggal-akhir">
+                    </div>
+
+                    <button id="btn-filter" class="btn-submit">Terapkan Filter</button>
+                    <button id="btn-reset-filter" class="btn-reset">Reset Filter</button>
+                </div>
+
+                <div class="riwayat-hasil">
+                    <h3>Hasil Riwayat</h3>
+                    <div id="statistik-riwayat" class="statistik">
+                        <p>Total Pengeluaran: <strong id="total-riwayat">Rp 0</strong></p>
+                        <p>Jumlah Transaksi: <strong id="jumlah-riwayat">0</strong></p>
+                    </div>
+                    <table id="tabel-riwayat" class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Tanggal</th>
+                                <th>Kategori</th>
+                                <th>Nominal</th>
+                                <th>Catatan</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbody-riwayat">
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- TAB 4: BUDGET BULANAN -->
+            <section id="budget" class="tab-content">
+                <h2>Budget Bulanan</h2>
+
+                <div class="budget-setup">
+                    <h3>Atur Budget Bulanan</h3>
+                    <form id="form-budget">
+                        <div class="form-group">
+                            <label for="bulan-budget">Bulan:</label>
+                            <input type="month" id="bulan-budget" name="bulan-budget" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="nominal-budget">Total Budget Bulanan (Rp):</label>
+                            <input type="number" id="nominal-budget" name="nominal-budget" placeholder="Contoh: 3000000" required>
+                        </div>
+
+                        <button type="submit" class="btn-submit">Simpan Budget</button>
+                    </form>
+                </div>
+
+                <div class="budget-status">
+                    <h3>Status Budget</h3>
+                    <div id="budget-info" class="info-box">
+                        <div class="budget-item">
+                            <p>Budget Bulan Ini: <strong id="budget-total">Rp 0</strong></p>
+                        </div>
+                        <div class="budget-item">
+                            <p>Sudah Dipakai: <strong id="budget-dipakai">Rp 0</strong></p>
+                        </div>
+                        <div class="budget-item">
+                            <p>Sisa Budget: <strong id="budget-sisa">Rp 0</strong></p>
+                        </div>
+                        <div class="budget-item">
+                            <p>Persentase Penggunaan: <strong id="budget-persen">0%</strong></p>
+                        </div>
+                    </div>
+
+                    <div id="warning-budget" class="warning-box" style="display: none;">
+                        <h4>⚠️ Peringatan!</h4>
+                        <p id="warning-text">Uangmu sudah mencapai 80% dari budget bulanan. Hati-hati dengan pengeluaranmu!</p>
+                    </div>
+
+                    <div class="progress-bar-container">
+                        <div id="progress-bar" class="progress-bar" style="width: 0%;">
+                            <span id="progress-text">0%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="budget-history">
+                    <h3>Riwayat Budget</h3>
+                    <table id="tabel-budget-history" class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Bulan</th>
+                                <th>Total Budget</th>
+                                <th>Pengeluaran</th>
+                                <th>Sisa</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbody-budget-history">
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- TAB 5: REKAP BULANAN -->
+            <section id="rekap" class="tab-content">
+                <h2>Rekap Bulanan</h2>
+
+                <div class="rekap-filter">
+                    <h3>Pilih Bulan</h3>
+                    <div class="filter-group">
+                        <label for="bulan-rekap">Bulan:</label>
+                        <input type="month" id="bulan-rekap" name="bulan-rekap">
+                    </div>
+                    <button id="btn-lihat-rekap" class="btn-submit">Lihat Rekap</button>
+                </div>
+
+                <div class="rekap-content">
+                    <div class="rekap-summary">
+                        <h3>Ringkasan Bulanan</h3>
+                        <div class="summary-box">
+                            <div class="summary-item">
+                                <p>Total Pemasukan: <strong id="rekap-total-pemasukan">Rp 0</strong></p>
+                            </div>
+                            <div class="summary-item">
+                                <p>Total Pengeluaran: <strong id="rekap-total-pengeluaran">Rp 0</strong></p>
+                            </div>
+                            <div class="summary-item">
+                                <p>Saldo Akhir: <strong id="rekap-saldo-akhir">Rp 0</strong></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="rekap-kategori">
+                        <h3>Pengeluaran per Kategori</h3>
+                        <table id="tabel-pengeluaran-kategori" class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Kategori</th>
+                                    <th>Jumlah Transaksi</th>
+                                    <th>Total Pengeluaran</th>
+                                    <th>Persentase</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbody-pengeluaran-kategori">
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="rekap-detail">
+                        <h3>Detail Transaksi Bulanan</h3>
+                        <div class="tabs-detail">
+                            <button class="tab-detail-btn active" data-tab-detail="pemasukan-detail">Pemasukan</button>
+                            <button class="tab-detail-btn" data-tab-detail="pengeluaran-detail">Pengeluaran</button>
+                        </div>
+
+                        <div id="pemasukan-detail" class="tab-detail-content active">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Tanggal</th>
+                                        <th>Sumber</th>
+                                        <th>Nominal</th>
+                                        <th>Catatan</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbody-rekap-pemasukan">
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div id="pengeluaran-detail" class="tab-detail-content">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Tanggal</th>
+                                        <th>Kategori</th>
+                                        <th>Nominal</th>
+                                        <th>Catatan</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbody-rekap-pengeluaran">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+
+        <!-- Footer -->
+        <footer>
+            <p>&copy; 2026 Sistem Management Pengeluaran. Kelola keuanganmu dengan bijak!</p>
+        </footer>
+    </div>
+
+</body>
+</html>
