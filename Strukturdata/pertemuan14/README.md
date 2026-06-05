@@ -55,26 +55,23 @@ Aplikasi sistem antrian tiket yang menggunakan **Queue** untuk manajemen antrian
 - Python 3.8 atau lebih tinggi
 - pip (Python package manager)
 
-### Langkah Instalasi
+## 🔧 LANGKAH-LANGKAH INSTALASI
 
-1. **Navigasi ke folder project:**
-```bash
-cd path/to/Strukturdata/pertemuan14
+### STEP 1: Download/Clone Project
+
+**Option A: Download ZIP**
+```
+1. Buka: GitHub repository atau file manager
+2. Download project sebagai ZIP
+3. Extract ke folder pilihan Anda
 ```
 
-2. **Buat virtual environment (opsional tapi disarankan):**
+**Option B: Git Clone**
 ```bash
-python -m venv venv
-# Windows
-venv\Scripts\activate
-# Linux/Mac
-source venv/bin/activate
+git clone <repository-url>
+cd Semester-2/Strukturdata/pertemuan14
 ```
 
-3. **Install dependencies:**
-```bash
-pip install -r requirements.txt
-```
 
 ## ▶️ Cara Menjalankan
 
