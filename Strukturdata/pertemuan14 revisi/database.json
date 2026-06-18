@@ -1,0 +1,380 @@
+{
+    "admins": [
+        {
+            "username": "admin",
+            "password": "admin123",
+            "full_name": "Admin Utama"
+        }
+    ],
+    "users": [
+        {
+            "username": "kael",
+            "password": "kael123",
+            "name": "kaelwind",
+            "saldo": 15000,
+            "location_x": 22,
+            "location_y": 26
+        },
+        {
+            "username": "foxy",
+            "password": "foxy123",
+            "name": "foxye",
+            "saldo": 140000,
+            "location_x": 19,
+            "location_y": 28
+        },
+        {
+            "username": "rexlouis",
+            "password": "farel123",
+            "name": "Farrel",
+            "saldo": 135000,
+            "location_x": 38,
+            "location_y": 55
+        },
+        {
+            "username": "sada",
+            "password": "123123",
+            "name": "sada",
+            "saldo": 30000,
+            "location_x": 50,
+            "location_y": 50
+        },
+        {
+            "username": "user1",
+            "password": "pass1",
+            "name": "User Satu",
+            "saldo": 380000,
+            "location_x": 50,
+            "location_y": 50
+        },
+        {
+            "username": "user2",
+            "password": "pass2",
+            "name": "User Dua",
+            "saldo": 500000,
+            "location_x": 50,
+            "location_y": 50
+        },
+        {
+            "username": "user3",
+            "password": "pass3",
+            "name": "User Tiga",
+            "saldo": 500000,
+            "location_x": 50,
+            "location_y": 50
+        },
+        {
+            "username": "user4",
+            "password": "pass4",
+            "name": "User Empat",
+            "saldo": 500000,
+            "location_x": 50,
+            "location_y": 50
+        }
+    ],
+    "categories": [
+        {
+            "name": "Reguler",
+            "price": 60000
+        },
+        {
+            "name": "VIP",
+            "price": 100000
+        },
+        {
+            "name": "VVIP",
+            "price": 150000
+        },
+        {
+            "name": "Front Premiere Seat (Limited)",
+            "price": 345000
+        },
+        {
+            "name": "vvip 21",
+            "price": 90000
+        }
+    ],
+    "orders": [
+        {
+            "ticket_number": 1000,
+            "username": "kael",
+            "name": "kaelwind",
+            "category": "Reguler",
+            "price": 50000,
+            "lokasi_x": 50,
+            "lokasi_y": 50,
+            "purchase_time": "2026-06-04 21:26:18",
+            "status": "Selesai",
+            "served_by": "admin",
+            "served_time": "2026-06-04 21:44:07"
+        },
+        {
+            "ticket_number": 1001,
+            "username": "foxy",
+            "name": "foxye",
+            "category": "VIP",
+            "price": 100000,
+            "lokasi_x": 50,
+            "lokasi_y": 50,
+            "purchase_time": "2026-06-04 21:32:14",
+            "status": "Selesai",
+            "served_by": "admin",
+            "served_time": "2026-06-04 21:44:09"
+        },
+        {
+            "ticket_number": 1002,
+            "username": "foxy",
+            "name": "foxye",
+            "category": "VVIP",
+            "price": 150000,
+            "lokasi_x": 50,
+            "lokasi_y": 50,
+            "purchase_time": "2026-06-04 21:32:53",
+            "status": "Selesai",
+            "served_by": "admin",
+            "served_time": "2026-06-04 21:44:11"
+        },
+        {
+            "ticket_number": 1003,
+            "username": "kael",
+            "name": "kaelwind",
+            "category": "Reguler",
+            "price": 50000,
+            "lokasi_x": 35,
+            "lokasi_y": 41,
+            "purchase_time": "2026-06-04 21:41:53",
+            "status": "Dibatalkan",
+            "served_by": "",
+            "served_time": "",
+            "cancelled_by": "admin",
+            "cancelled_time": "2026-06-04 21:44:12"
+        },
+        {
+            "ticket_number": 1004,
+            "username": "kael",
+            "name": "kaelwind",
+            "category": "Reguler",
+            "price": 60000,
+            "lokasi_x": 22,
+            "lokasi_y": 26,
+            "purchase_time": "2026-06-04 21:46:57",
+            "status": "Dibatalkan",
+            "served_by": "",
+            "served_time": "",
+            "cancelled_by": "admin",
+            "cancelled_time": "2026-06-04 21:49:07"
+        },
+        {
+            "ticket_number": 1005,
+            "username": "foxy",
+            "name": "foxye",
+            "category": "VIP",
+            "price": 100000,
+            "lokasi_x": 19,
+            "lokasi_y": 28,
+            "purchase_time": "2026-06-04 21:48:18",
+            "status": "Selesai",
+            "served_by": "admin",
+            "served_time": "2026-06-04 21:49:09"
+        },
+        {
+            "ticket_number": 1006,
+            "username": "kael",
+            "name": "kaelwind",
+            "category": "Front Premiere Seat (Limited)",
+            "price": 345000,
+            "lokasi_x": 22,
+            "lokasi_y": 26,
+            "purchase_time": "2026-06-05 11:31:52",
+            "status": "Selesai",
+            "served_by": "admin",
+            "served_time": "2026-06-05 11:32:59"
+        },
+        {
+            "ticket_number": 1007,
+            "username": "rexlouis",
+            "name": "Farrel",
+            "category": "Front Premiere Seat (Limited)",
+            "price": 345000,
+            "lokasi_x": 38,
+            "lokasi_y": 55,
+            "purchase_time": "2026-06-11 20:24:03",
+            "status": "Dibatalkan",
+            "served_by": "",
+            "served_time": "",
+            "cancelled_by": "system",
+            "cancelled_time": "2026-06-18 12:41:05"
+        },
+        {
+            "ticket_number": 1008,
+            "username": "sada",
+            "name": "sada",
+            "category": "Reguler",
+            "price": 60000,
+            "lokasi_x": 50,
+            "lokasi_y": 50,
+            "purchase_time": "2026-06-18 10:05:33",
+            "status": "Menunggu",
+            "served_by": "",
+            "served_time": ""
+        },
+        {
+            "ticket_number": 1009,
+            "username": "user1",
+            "name": "User Satu",
+            "category": "Reguler",
+            "price": 60000,
+            "lokasi_x": 50,
+            "lokasi_y": 50,
+            "purchase_time": "2026-06-18 10:11:59",
+            "status": "Menunggu",
+            "served_by": "",
+            "served_time": ""
+        },
+        {
+            "ticket_number": 1010,
+            "username": "user1",
+            "name": "User Satu",
+            "category": "Reguler",
+            "price": 60000,
+            "lokasi_x": 50,
+            "lokasi_y": 50,
+            "purchase_time": "2026-06-18 10:16:05",
+            "status": "Dibatalkan",
+            "served_by": "",
+            "served_time": "",
+            "cancelled_by": "system",
+            "cancelled_time": "2026-06-18 12:41:05"
+        },
+        {
+            "ticket_number": 1011,
+            "username": "kael",
+            "name": "kaelwind",
+            "category": "Reguler",
+            "price": 60000,
+            "lokasi_x": 22,
+            "lokasi_y": 26,
+            "purchase_time": "2026-06-18 12:53:29",
+            "status": "Dibatalkan",
+            "served_by": "",
+            "served_time": "",
+            "cancelled_by": "system",
+            "cancelled_time": "2026-06-18 12:54:02"
+        },
+        {
+            "ticket_number": 1012,
+            "username": "kael",
+            "name": "kaelwind",
+            "category": "Reguler",
+            "price": 60000,
+            "lokasi_x": 22,
+            "lokasi_y": 26,
+            "purchase_time": "2026-06-18 13:10:50",
+            "status": "Dibatalkan",
+            "served_by": "",
+            "served_time": "",
+            "cancelled_by": "system",
+            "cancelled_time": "2026-06-18 13:11:48"
+        },
+        {
+            "ticket_number": 1013,
+            "username": "kael",
+            "name": "kaelwind",
+            "category": "Reguler",
+            "price": 60000,
+            "lokasi_x": 22,
+            "lokasi_y": 26,
+            "purchase_time": "2026-06-18 13:11:15",
+            "status": "Dibatalkan",
+            "served_by": "",
+            "served_time": "",
+            "cancelled_by": "system",
+            "cancelled_time": "2026-06-18 13:11:48"
+        },
+        {
+            "ticket_number": 1014,
+            "username": "kael",
+            "name": "kaelwind",
+            "category": "Reguler",
+            "price": 60000,
+            "lokasi_x": 0,
+            "lokasi_y": 0,
+            "purchase_time": "2026-06-18 15:08:13",
+            "status": "Dibatalkan",
+            "served_by": "",
+            "served_time": "",
+            "cancelled_by": "system",
+            "cancelled_time": "2026-06-18 15:09:07"
+        },
+        {
+            "ticket_number": 1015,
+            "username": "foxy",
+            "name": "foxye",
+            "category": "Reguler",
+            "price": 60000,
+            "lokasi_x": 0,
+            "lokasi_y": 0,
+            "purchase_time": "2026-06-18 15:09:18",
+            "status": "Dibatalkan",
+            "served_by": "",
+            "served_time": "",
+            "cancelled_by": "system",
+            "cancelled_time": "2026-06-18 15:09:48"
+        },
+        {
+            "ticket_number": 1016,
+            "username": "rexlouis",
+            "name": "Farrel",
+            "category": "Reguler",
+            "price": 60000,
+            "lokasi_x": 0,
+            "lokasi_y": 0,
+            "purchase_time": "2026-06-18 15:10:06",
+            "status": "Dibatalkan",
+            "served_by": "",
+            "served_time": "",
+            "cancelled_by": "system",
+            "cancelled_time": "2026-06-18 15:12:08"
+        }
+    ],
+    "chats": [
+        {
+            "chat_id": 1,
+            "username": "kael",
+            "created_at": "2026-06-04 21:31:17",
+            "updated_at": "2026-06-04 21:35:28",
+            "status": "Ditanggapi",
+            "messages": [
+                {
+                    "sender": "kael",
+                    "text": "halo\\",
+                    "timestamp": "2026-06-04 21:31:17"
+                },
+                {
+                    "sender": "admin",
+                    "text": "iya",
+                    "timestamp": "2026-06-04 21:35:28"
+                }
+            ]
+        },
+        {
+            "chat_id": 2,
+            "username": "foxy",
+            "created_at": "2026-06-04 21:33:09",
+            "updated_at": "2026-06-04 21:35:37",
+            "status": "Ditanggapi",
+            "messages": [
+                {
+                    "sender": "foxy",
+                    "text": "aku dah pesen",
+                    "timestamp": "2026-06-04 21:33:09"
+                },
+                {
+                    "sender": "admin",
+                    "text": "oke proses",
+                    "timestamp": "2026-06-04 21:35:37"
+                }
+            ]
+        }
+    ]
+}

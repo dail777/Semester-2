@@ -1,0 +1,107 @@
+cd strukturdata{
+    "admins": [
+        {
+            "username": "admin",
+            "password": "admin123",
+            "full_name": "Admin Utama"
+        }
+    ],
+    "users": [
+        {
+            "username": "dail",
+            "password": "dail123",
+            "name": "Dail",
+            "saldo": 60000,
+            "location_x": 49,
+            "location_y": 49
+        },
+        {
+            "username": "abie",
+            "password": "abie123",
+            "name": "Abie",
+            "saldo": 40000,
+            "location_x": 50,
+            "location_y": 50
+        },
+        {
+            "username": "nayla",
+            "password": "nay123",
+            "name": "Nayla",
+            "saldo": 390000,
+            "location_x": 50,
+            "location_y": 50
+        },
+        {
+            "username": "user1",
+            "password": "x",
+            "name": "User1",
+            "saldo": 0,
+            "location_x": 50,
+            "location_y": 50
+        },
+        {
+            "username": "user2",
+            "password": "x",
+            "name": "User2",
+            "saldo": 0,
+            "location_x": 50,
+            "location_y": 50
+        }
+    ],
+    "categories": [
+        {
+            "name": "Reguler",
+            "price": 50000
+        },
+        {
+            "name": "VIP",
+            "price": 100000
+        },
+        {
+            "name": "VVIP",
+            "price": 150000
+        }
+    ],
+    "orders": [
+        {
+            "ticket_number": 1000,
+            "username": "dail",
+            "name": "Dail",
+            "category": "Reguler",
+            "price": 50000,
+            "lokasi_x": 50,
+            "lokasi_y": 50,
+            "purchase_time": "2026-05-23 23:54:26",
+            "status": "Selesai",
+            "served_by": "admin",
+            "served_time": "2026-05-23 23:54:34"
+        },
+        {
+            "ticket_number": 1001,
+            "username": "dail",
+            "name": "Dail",
+            "category": "Reguler",
+            "price": 50000,
+            "lokasi_x": 49,
+            "lokasi_y": 49,
+            "purchase_time": "2026-05-25 15:24:13",
+            "status": "Selesai",
+            "served_by": "admin",
+            "served_time": "2026-05-25 15:24:24"
+        },
+        {
+            "ticket_number": 1002,
+            "username": "dail",
+            "name": "Dail",
+            "category": "Reguler",
+            "price": 50000,
+            "lokasi_x": 49,
+            "lokasi_y": 49,
+            "purchase_time": "2026-05-25 15:24:48",
+            "status": "Selesai",
+            "served_by": "admin",
+            "served_time": "2026-05-25 15:25:06"
+        }
+    ],
+    "chats": []
+}
